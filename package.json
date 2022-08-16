@@ -1,0 +1,27 @@
+{
+  "name": "halfof8",
+  "private": true,
+  "description": "halfof8.com website",
+  "version": "0.1.0",
+  "license": "MIT",
+  "dependencies": {
+    "gatsby": "^4.20.0",
+    "gatsby-plugin-image": "^2.20.0",
+    "gatsby-plugin-manifest": "^4.20.0",
+    "gatsby-plugin-sass": "^5.20.0",
+    "gatsby-plugin-sharp": "^4.20.0",
+    "gatsby-source-contentful": "^7.18.0",
+    "gatsby-source-filesystem": "^4.20.0",
+    "gatsby-transformer-sharp": "^4.20.0"
+  },
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop -H 0.0.0.0 -p 8000",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve -H 0.0.0.0 -p 9000",
+    "preview": "gatsby build && gatsby serve -H 0.0.0.0 -p 9000",
+    "clean": "gatsby clean",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+  }
+}
