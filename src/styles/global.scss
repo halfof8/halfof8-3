@@ -1,0 +1,101 @@
+.app-wrap {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  background-color: #0a0a0a;
+}
+
+.page-wrap {
+  display: flex;
+  position: absolute;
+  height: 100%;
+  width: 100vw;
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding-top: 30px;
+}
+
+.page h1 {
+  font-size: 8rem;
+}
+
+.page-index {
+  background-color: hotpink;
+}
+
+.artworks {
+  position: relative;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+  background-color: palegoldenrod;
+}
+
+.page-two {
+  background-color: #459e9e
+}
+
+.page-wrap > h1 {
+  margin-top: 0;
+}
+
+.ui-wrap {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  top: 14px;
+  z-index: 1;
+}
+
+.navigation {
+  font-size: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.anim-switch {
+  margin-top: 14px;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.exit-box {
+  color: #fff;
+  display: inline-block;
+  margin-left: 14px;
+  cursor: pointer;
+}
+
+.exit-box [type='checkbox'] {
+  margin: 0 8px;
+}
+
+.navigation a {
+  display: inline-block;
+  color: #fff;
+  margin: 0 14px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.navigation a:hover {
+  transform: scale(1.1);
+}
+
+#__next {
+  height: 100%;
+}
