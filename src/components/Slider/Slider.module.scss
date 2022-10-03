@@ -1,0 +1,26 @@
+@use 'src/styles/mixins/shared';
+
+.slider {
+
+}
+
+.list {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		@include shared.accessible-list;
+	}
+}
+
+.slide {
+	flex-shrink: 0;
+	flex-grow: 0;
+	width: 40vmin;
+	height: 50vmin;
+}

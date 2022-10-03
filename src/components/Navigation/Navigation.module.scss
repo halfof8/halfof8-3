@@ -1,0 +1,34 @@
+@use 'src/styles/mixins/shared';
+
+.nav {
+	font-size: 14px;
+}
+
+.list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+}
+
+.listItem {
+	margin-right: 8px;
+	@include shared.accessible-list;
+
+	&:last-child {
+		margin-left: 0;
+	}
+}
+
+.link {
+	display: inline-block;
+	padding: 6px 8px;
+	border-radius: 4px;
+	background-color: #222222;
+	color: #ffffff;
+}
+
+.link.active {
+	background-color: #ffffff;
+	color: #000000;
+}

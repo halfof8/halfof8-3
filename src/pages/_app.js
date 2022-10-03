@@ -1,38 +1,38 @@
-import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion'
 import '../styles/index.scss'
-import Navigation from '../components/Navigation'
-import { animations } from '../lib/animations'
+import css from '../styles/App.module.scss'
+import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion'
+import { fadeIn, slideUp } from '../lib/animations'
+import Header from '../components/Header/Header.js'
 
-const pages = [
-    { href: '/', name: 'Home' },
-    { href: '/artworks', name: 'Artworks' },
-    { href: '/music', name: 'Music' }
-]
+function App({ Component, pageProps, router }) {
+	return (
+		<div className={css.app}>
+			<Header />
 
-function MyApp({ Component, pageProps, router }) {
-    const animation = animations[0]
-
-    return (
-        <div className="app-wrap">
-            <div className="ui-wrap">
-                <Navigation pages={pages} />
-            </div>
-            <LazyMotion features={domAnimation}>
-                <AnimatePresence exitBeforeEnter={false} initial={false}>
-                    <m.div
-                        key={router.route.concat(animation.name)}
-                        className="page-wrap"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={animation.variants}
-                    >
-                        <Component {...pageProps} />
-                    </m.div>
-                </AnimatePresence>
-            </LazyMotion>
-        </div>
-    )
+			<LazyMotion features={domAnimation}>
+				<AnimatePresence exitBeforeEnter={false} initial={false}>
+					<m.main
+						className={css.main}
+						key={router.route}
+						initial="initial"
+						animate="animate"
+						exit="exit"
+						variants={slideUp.variants}
+					>
+						<m.div
+							className={css.page}
+							initial="initial"
+							animate="animate"
+							exit="exit"
+							variants={fadeIn.variants}
+						>
+							<Component {...pageProps} />
+						</m.div>
+					</m.main>
+				</AnimatePresence>
+			</LazyMotion>
+		</div>
+	)
 }
 
-export default MyApp
+export default App

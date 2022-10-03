@@ -1,0 +1,9 @@
+/*
+ * fix "list-style: none;" a11y issue in Safari
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/list-style#accessibility_concerns
+ */
+@mixin accessible-list {
+	&::before {
+		content: "\200B";
+	}
+}

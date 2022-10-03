@@ -1,0 +1,22 @@
+@use 'src/styles/vars';
+
+.app {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+}
+
+.main {
+	position: absolute;
+	overflow: auto;
+	height: 100%;
+	width: 100%;
+	background-color: vars.$black;
+}
+
+.page {
+	position: relative;
+	overflow: auto;
+	height: 100%;
+}
