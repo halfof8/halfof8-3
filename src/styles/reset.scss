@@ -1,23 +1,23 @@
 *,
 *::before,
 *::after {
-  box-sizing: inherit;
-  -webkit-tap-highlight-color: transparent;
+	box-sizing: inherit;
+	-webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
-  margin: 0;
-  height: 100%;
+	margin: 0;
+	height: 100%;
 }
 
 html {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 body {
-  font-family: sans-serif;
-  -webkit-font-smoothing: antialiased;
+	font-family: sans-serif;
+	-webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -27,21 +27,21 @@ h4,
 h5,
 h6,
 p {
-  margin: 0;
+	margin: 0;
 }
 
 a {
-  text-decoration: none;
-  color: inherit;
+	text-decoration: none;
+	color: inherit;
 }
 
 textarea {
-  resize: none;
+	resize: none;
 }
 
 textarea::placeholder,
 input::placeholder {
-  opacity: 1;
+	opacity: 1;
 }
 
 input,
@@ -50,12 +50,13 @@ textarea::placeholder,
 input::placeholder,
 button,
 select {
-  font: inherit;
+	font: inherit;
 }
 
 button {
-  appearance: none;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
+	color: inherit;
+	appearance: none;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
 }

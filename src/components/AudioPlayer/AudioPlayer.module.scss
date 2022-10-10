@@ -1,0 +1,27 @@
+@use 'src/styles/mixins/shared' as s;
+
+.player {
+	position: relative;
+	width: min(100%, 500px);
+	@include s.aspect(3 / 4);
+}
+
+.viewport {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.audio {
+
+}
+
+.canvas {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: auto;
+}

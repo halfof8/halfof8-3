@@ -1,10 +1,12 @@
 @use 'src/styles/mixins/shared';
 
 .slider {
-
+	height: 100%;
+	display: flex;
+	align-items: center;
 }
 
-.list {
+.slides {
 	position: relative;
 	overflow: hidden;
 	display: flex;
@@ -12,10 +14,6 @@
 	margin: 0;
 	padding: 0;
 	list-style: none;
-
-	li {
-		@include shared.accessible-list;
-	}
 }
 
 .slide {
@@ -23,4 +21,11 @@
 	flex-grow: 0;
 	width: 40vmin;
 	height: 50vmin;
+	@include shared.accessible-list;
+}
+
+.controls {
+	position: absolute;
+	bottom: 0;
+	padding: 24px;
 }
