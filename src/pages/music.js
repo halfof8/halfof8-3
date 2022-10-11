@@ -9,8 +9,8 @@ const images = Array(16)
 function Music({ audioFiles }) {
 	return (
 		<>
-			<Slider items={images} />
 			<AudioPlayer audioFile={audioFiles[0]} />
+			<Slider items={images} />
 		</>
 	)
 }

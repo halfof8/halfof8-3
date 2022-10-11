@@ -1,6 +1,13 @@
 import css from './AudioPlayer.module.scss'
 import { useEffect, useRef } from 'react'
 
+const STROKE_WIDTH = 2
+const STROKE_COLOR = '#FAFF00'
+const FFT_SIZE = 128
+const PHASE_SHIFT_FACTOR = 20
+const SIN_PERIODS_COUNT = 4
+const FREQUENCY_CUTOFF = 0.5
+
 const AudioPlayer = ({ audioFile }) => {
 	const canvasRef = useRef()
 	const audioRef = useRef(null)
@@ -11,50 +18,73 @@ const AudioPlayer = ({ audioFile }) => {
 	useEffect(() => {
 		if (!window?.AudioContext) return
 
-		audioRef.current = new Audio(audioFile)
-		const audio = audioRef.current
+		const audio = new Audio(audioFile)
 		audio.crossOrigin = 'anonymous'
 		audio.load()
+
+		audioRef.current = audio
 
 		const ac = new AudioContext()
 		const analyser = ac.createAnalyser()
 		const sourceNode = ac.createMediaElementSource(audio)
 
-		analyser.fftSize = 2048
+		analyser.fftSize = FFT_SIZE
 		sourceNode.connect(analyser)
 		analyser.connect(ac.destination)
 
 		const bufferLength = analyser.frequencyBinCount
 		const dataArray = new Uint8Array(bufferLength)
+		const pointsCount = Math.round(FREQUENCY_CUTOFF * bufferLength)
 
-		console.log(bufferLength)
+		const staticNoise = Array.from({ length: pointsCount }, () => Math.random())
 
 		const canvas = canvasRef.current
 		const ctx = canvas.getContext('2d')
-		const { width, height } = canvas
+		const { width, height } = canvas.getBoundingClientRect()
 
-		ctx.clearRect(0, 0, width, height)
+		if (window.devicePixelRatio > 1) {
+			canvas.width = width * window.devicePixelRatio
+			canvas.height = height * window.devicePixelRatio
+			ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+
+			canvas.style.width = width + 'px'
+			canvas.style.height = height + 'px'
+		}
+
+		const segmentWidth = width / (pointsCount - 1)
+		let x = 0
+		let y = height / 2
+		let phase = 0
 
 		let frameId
 		const render = () => {
 			frameId = requestAnimationFrame(render)
 
-			analyser.getByteTimeDomainData(dataArray)
+			x = 0
 
-			ctx.fillStyle = 'rgb(0, 0, 0)'
-			ctx.fillRect(0, 0, width, height)
+			analyser.getByteFrequencyData(dataArray)
 
-			ctx.lineWidth = 2
-			ctx.strokeStyle = '#FAFF00'
+			ctx.clearRect(0, 0, width, height)
 
+			ctx.lineWidth = STROKE_WIDTH
+			ctx.strokeStyle = STROKE_COLOR
 			ctx.beginPath()
 
-			const sliceWidth = (width * 1.0) / (bufferLength - 1)
-			let x = 0
+			for (let i = 0; i < pointsCount; i++) {
+				const signalValue = dataArray[i] / 255
 
-			for (let i = 0; i < bufferLength; i++) {
-				const v = dataArray[i] / 128.0
-				const y = (v * height) / 2
+				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
+				const sinArg = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
+
+				const sin = Math.sin(sinArg)
+				const cos = Math.cos(sinArg * 1.17)
+				const sin2 = Math.sin(sinArg * 1.37)
+
+				const noise = staticNoise[i]
+
+				const normalizedY = sin * cos * sin2 * 0.3 * signalValue + signalValue * 0.7
+
+				y = (height - normalizedY * height) / 2
 
 				if (i === 0) {
 					ctx.moveTo(x, y)
@@ -62,39 +92,9 @@ const AudioPlayer = ({ audioFile }) => {
 					ctx.lineTo(x, y)
 				}
 
-				x += sliceWidth
+				x += segmentWidth
 			}
-
-			// ctx.lineTo(width, height / 2)
 			ctx.stroke()
-
-			// analyser.getByteFrequencyData(dataArray)
-			//
-			// ctx.fillStyle = '#000'
-			// ctx.fillRect(0, 0, width, height)
-			//
-			// ctx.lineWidth = 2
-			// ctx.strokeStyle = '#FAFF00'
-			// ctx.beginPath()
-			//
-			// const sliceWidth = width / bufferLength
-			// let x = 0
-			//
-			// for (let i = 0; i < bufferLength; i++) {
-			// 	const v = dataArray[i] / 128.0
-			// 	const y = v * (height / 2)
-			//
-			// 	if (i === 0) {
-			// 		ctx.moveTo(x, y)
-			// 	} else {
-			// 		ctx.lineTo(x, y)
-			// 	}
-			//
-			// 	x += sliceWidth
-			// }
-			//
-			// ctx.lineTo(width, height / 2)
-			// ctx.stroke()
 		}
 
 		frameId = requestAnimationFrame(render)
