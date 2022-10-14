@@ -3,10 +3,16 @@ import { useEffect, useRef } from 'react'
 
 const STROKE_WIDTH = 2
 const STROKE_COLOR = '#FAFF00'
-const FFT_SIZE = 128
-const PHASE_SHIFT_FACTOR = 20
-const SIN_PERIODS_COUNT = 4
-const FREQUENCY_CUTOFF = 0.5
+const FFT_SIZE = 64 // affects visualisation points count. must be equals to power of 2 and not less than 32
+const PHASE_SHIFT_FACTOR = 400 // affects "sin movement speed"
+const SIN_PERIODS_COUNT = 3
+const FREQUENCY_CUTOFF = 1 // cut the upper frequencies
+const INTERPOLATE_FRAME = 5
+const GAIN_FACTOR = 20
+
+function lerp(start, end, t) {
+	return start * (1 - t) + end * t
+}
 
 const AudioPlayer = ({ audioFile }) => {
 	const canvasRef = useRef()
@@ -33,7 +39,8 @@ const AudioPlayer = ({ audioFile }) => {
 		analyser.connect(ac.destination)
 
 		const bufferLength = analyser.frequencyBinCount
-		const dataArray = new Uint8Array(bufferLength)
+		const timeDataArray = new Uint8Array(bufferLength)
+		const frequencyDataArray = new Uint8Array(bufferLength)
 		const pointsCount = Math.round(FREQUENCY_CUTOFF * bufferLength)
 
 		const staticNoise = Array.from({ length: pointsCount }, () => Math.random())
@@ -55,23 +62,16 @@ const AudioPlayer = ({ audioFile }) => {
 		let x = 0
 		let y = height / 2
 		let phase = 0
+		let frameCount = 0
+		let lastFrame = []
+		let nextFrame = []
 
-		let frameId
-		const render = () => {
-			frameId = requestAnimationFrame(render)
-
-			x = 0
-
-			analyser.getByteFrequencyData(dataArray)
-
-			ctx.clearRect(0, 0, width, height)
-
-			ctx.lineWidth = STROKE_WIDTH
-			ctx.strokeStyle = STROKE_COLOR
-			ctx.beginPath()
+		const computeFrame = () => {
+			const frame = []
 
 			for (let i = 0; i < pointsCount; i++) {
-				const signalValue = dataArray[i] / 255
+				const signalValueInTimeDomain = (128 - timeDataArray[i]) / 128
+				const signalValueInFrequencyDomain = frequencyDataArray[i] / 255
 
 				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
 				const sinArg = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
@@ -80,21 +80,67 @@ const AudioPlayer = ({ audioFile }) => {
 				const cos = Math.cos(sinArg * 1.17)
 				const sin2 = Math.sin(sinArg * 1.37)
 
-				const noise = staticNoise[i]
+				const noise = sin * sin2 * cos
 
-				const normalizedY = sin * cos * sin2 * 0.3 * signalValue + signalValue * 0.7
+				let normalizedY = (noise * signalValueInFrequencyDomain * GAIN_FACTOR) / 10
+
+				if (normalizedY > 1) normalizedY = 1
 
 				y = (height - normalizedY * height) / 2
+
+				frame[i] = { x, y }
+
+				x += segmentWidth
+			}
+
+			return frame
+		}
+
+		const drawFrame = (arr) => {
+			for (let i = 0; i < arr.length; i++) {
+				const { x, y } = arr[i]
 
 				if (i === 0) {
 					ctx.moveTo(x, y)
 				} else {
 					ctx.lineTo(x, y)
 				}
-
-				x += segmentWidth
+				ctx.stroke()
 			}
-			ctx.stroke()
+		}
+
+		let frameId
+		const render = () => {
+			frameId = requestAnimationFrame(render)
+
+			x = 0
+
+			analyser.getByteTimeDomainData(timeDataArray)
+			analyser.getByteFrequencyData(frequencyDataArray)
+
+			ctx.clearRect(0, 0, width, height)
+
+			ctx.lineWidth = STROKE_WIDTH
+			ctx.strokeStyle = STROKE_COLOR
+			ctx.beginPath()
+
+			if (frameCount === 0) {
+				lastFrame = computeFrame()
+				nextFrame = lastFrame
+			} else if (frameCount % INTERPOLATE_FRAME === 0) {
+				nextFrame = computeFrame()
+			}
+
+			const frame = lastFrame.map(({ x, y: y0 }, i) => {
+				const { y: y1 } = nextFrame[i]
+				const y = lerp(y0, y1, 0.1)
+				return { x, y }
+			})
+			drawFrame(frame)
+
+			lastFrame = frame
+
+			frameCount++
 		}
 
 		frameId = requestAnimationFrame(render)
