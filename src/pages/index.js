@@ -1,7 +1,9 @@
+import AboutPage from '../components/AboutLayout/AboutPage.js'
+
 function HomePage() {
 	return (
 		<>
-			<h1>Index page</h1>
+			<AboutPage />
 		</>
 	)
 }
