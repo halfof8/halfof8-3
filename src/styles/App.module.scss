@@ -4,19 +4,16 @@
 	position: relative;
 	overflow: hidden;
 	height: 100%;
-	width: 100%;
 }
 
-.main {
+.wrap {
 	position: absolute;
-	overflow: auto;
 	height: 100%;
 	width: 100%;
 	background-color: vars.$black;
 }
 
-.page {
+.main {
 	position: relative;
-	overflow: auto;
 	height: 100%;
 }

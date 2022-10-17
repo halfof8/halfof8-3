@@ -11,24 +11,24 @@ function App({ Component, pageProps, router }) {
 
 			<LazyMotion features={domAnimation}>
 				<AnimatePresence exitBeforeEnter={false} initial={false}>
-					<m.main
-						className={css.main}
+					<m.div
+						className={css.wrap}
 						key={router.route}
 						initial="initial"
 						animate="animate"
 						exit="exit"
 						variants={slideUp.variants}
 					>
-						<m.div
-							className={css.page}
+						<m.main
+							className={css.main}
 							initial="initial"
 							animate="animate"
 							exit="exit"
 							variants={fadeIn.variants}
 						>
 							<Component {...pageProps} />
-						</m.div>
-					</m.main>
+						</m.main>
+					</m.div>
 				</AnimatePresence>
 			</LazyMotion>
 		</div>
