@@ -1,5 +1,7 @@
 import css from './AudioPlayer.module.scss'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import PlayButton from '../PlayButton/PlayButton.js'
+import Timeline from '../Timeline/Timeline.js'
 
 const STROKE_WIDTH = 2
 const STROKE_COLOR = '#FAFF00'
@@ -12,8 +14,24 @@ const AudioPlayer = ({ audioFile }) => {
 	const canvasRef = useRef()
 	const audioRef = useRef(null)
 
+	const [isPlaying, setIsPlaying] = useState(false)
 	const play = () => audioRef.current.play()
 	const pause = () => audioRef.current.pause()
+	const toggle = () => {
+		if (isPlaying) pause()
+		else play()
+		setIsPlaying(!isPlaying)
+	}
+
+	const [progress, setProgress] = useState(0)
+	const timelineRef = useRef()
+	const onClick = (e) => {
+		const rect = timelineRef.current.getBoundingClientRect()
+		const value = (e.clientX - rect.left) / rect.width
+		const progressToSet = value < 0 ? 0 : value > 1 ? 1 : value
+		setProgress(progressToSet)
+		audioRef.current.currentTime = progressToSet * audioRef.current.duration
+	}
 
 	useEffect(() => {
 		if (!window?.AudioContext) return
@@ -107,12 +125,30 @@ const AudioPlayer = ({ audioFile }) => {
 		}
 	}, [audioFile])
 
+	useEffect(() => {
+		const audio = audioRef.current
+
+		const updateHandler = () => {
+			const value = audio.currentTime / audio.duration
+			if (!isNaN(value)) setProgress(value)
+		}
+
+		audio.addEventListener('timeupdate', updateHandler)
+
+		return () => {
+			audio.removeEventListener('timeupdate', updateHandler)
+		}
+	}, [])
+
 	return (
 		<div className={css.player}>
 			<div className={css.viewport}>
-				<div className={css.audio}>
-					<button onClick={play}>Play</button>
-					<button onClick={pause}>Pause</button>
+				<div className={css.timeline} onClick={onClick} ref={timelineRef}>
+					<Timeline progress={progress} setProgress={setProgress} />
+				</div>
+
+				<div className={css.playButton}>
+					<PlayButton onClick={toggle} isPlaying={isPlaying} />
 				</div>
 				<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
 			</div>

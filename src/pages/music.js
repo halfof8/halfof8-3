@@ -1,16 +1,9 @@
-import Slider from '../components/Slider/Slider.js'
-import AudioPlayer from '../components/AudioPlayer/AudioPlayer'
-
-const colors = ['#854c4c', '#527548', '#476894', '#9575b9', '#999a90']
-const images = Array(16)
-	.fill(0)
-	.map((_, index) => ({ color: colors[index % colors.length] }))
+import MusicPage from '../components/MusicPage/MusicPage.js'
 
 function Music({ audioFiles }) {
 	return (
 		<>
-			<AudioPlayer audioFile={audioFiles[0]} />
-			<Slider items={images} />
+			<MusicPage audioFiles={audioFiles} />
 		</>
 	)
 }
