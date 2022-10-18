@@ -75,14 +75,16 @@ const AudioPlayer = ({ audioFile }) => {
 
 				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
 				const sinArg = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
+				const sinArg2 = 1.27 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT - phase
+				const sinArg3 = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase * 1.331
 
 				const sin = Math.sin(sinArg)
-				const cos = Math.cos(sinArg * 1.17)
-				const sin2 = Math.sin(sinArg * 1.37)
+				const cos = Math.cos(sinArg3 * 1.17)
+				const sin2 = Math.sin(sinArg2 * 0.73)
 
-				const noise = staticNoise[i]
+				const noise = sin * cos * sin2
 
-				const normalizedY = sin * cos * sin2 * 0.3 * signalValue + signalValue * 0.7
+				const normalizedY = noise * 0.35 * signalValue + signalValue * 0.65 + Math.random()
 
 				y = (height - normalizedY * height) / 2
 
@@ -114,7 +116,7 @@ const AudioPlayer = ({ audioFile }) => {
 					<button onClick={play}>Play</button>
 					<button onClick={pause}>Pause</button>
 				</div>
-				<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
+				<canvas className={css.canvas} height="150" width="500" ref={canvasRef} />
 			</div>
 		</div>
 	)
