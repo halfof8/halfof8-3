@@ -1,13 +1,13 @@
 import css from './AudioPlayer.module.scss'
 import { useEffect, useRef } from 'react'
 
-const STROKE_WIDTH = 2
+const STROKE_WIDTH = 1.4
 const STROKE_COLOR = '#FAFF00'
-const FFT_SIZE = 64 // affects visualisation points count. must be equals to power of 2 and not less than 32
-const PHASE_SHIFT_FACTOR = 400 // affects "sin movement speed"
-const SIN_PERIODS_COUNT = 3
-const FREQUENCY_CUTOFF = 1 // cut the upper frequencies
-const INTERPOLATE_FRAME = 5
+const FFT_SIZE = 256 // affects visualisation points count. must be equals to power of 2 and not less than 32
+const PHASE_SHIFT_FACTOR = 40 // affects "sin movement speed"
+const SIN_PERIODS_COUNT = 6
+const FREQUENCY_CUTOFF = 0.4 // cut the upper frequencies
+const INTERPOLATE_FRAME = 1
 const GAIN_FACTOR = 20
 
 function lerp(start, end, t) {
@@ -75,17 +75,19 @@ const AudioPlayer = ({ audioFile }) => {
 
 				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
 				const sinArg = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
+				const sinArg2 = 1.27 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT - phase
+				const sinArg3 = 1.77 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
 
 				const sin = Math.sin(sinArg)
-				const cos = Math.cos(sinArg * 1.17)
-				const sin2 = Math.sin(sinArg * 1.37)
+				const sin2 = Math.sin(sinArg2 * 1.37)
+				const cos = Math.cos(sinArg3 * 1.77)
 
 				const noise = sin * sin2 * cos
 
-				let normalizedY = (noise * signalValueInFrequencyDomain * GAIN_FACTOR) / 10
+				let normalizedY = signalValueInFrequencyDomain * 1.3
+				normalizedY += signalValueInFrequencyDomain ** 0.9 * noise
 
 				if (normalizedY > 1) normalizedY = 1
-
 				y = (height - normalizedY * height) / 2
 
 				frame[i] = { x, y }
