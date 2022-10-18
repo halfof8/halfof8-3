@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 const STROKE_WIDTH = 1.4
 const STROKE_COLOR = '#FAFF00'
 const FFT_SIZE = 256 // affects visualisation points count. must be equals to power of 2 and not less than 32
-const PHASE_SHIFT_FACTOR = 40 // affects "sin movement speed"
+const PHASE_SHIFT_FACTOR = 30 // affects "sin movement speed"
 const SIN_PERIODS_COUNT = 6
 const FREQUENCY_CUTOFF = 0.4 // cut the upper frequencies
 const INTERPOLATE_FRAME = 1
@@ -78,13 +78,13 @@ const AudioPlayer = ({ audioFile }) => {
 				const sinArg2 = 1.27 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT - phase
 				const sinArg3 = 1.77 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
 
-				const sin = Math.sin(sinArg)
-				const sin2 = Math.sin(sinArg2 * 1.37)
-				const cos = Math.cos(sinArg3 * 1.77)
+				const sin = 1.7 * Math.sin(sinArg)
+				const sin2 = 2.1 * Math.sin(sinArg2 * 1.37)
+				const cos = 1 * Math.cos(sinArg3 * 1.77)
 
 				const noise = sin * sin2 * cos
 
-				let normalizedY = signalValueInFrequencyDomain * 1.3
+				let normalizedY = signalValueInFrequencyDomain
 				normalizedY += signalValueInFrequencyDomain ** 0.9 * noise
 
 				if (normalizedY > 1) normalizedY = 1
