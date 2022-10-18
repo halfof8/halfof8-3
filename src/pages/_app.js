@@ -3,14 +3,17 @@ import css from '../styles/App.module.scss'
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion'
 import { fadeIn, slideUp } from '../lib/animations'
 import Header from '../components/Header/Header.js'
+import { useState } from 'react'
 
 function App({ Component, pageProps, router }) {
+	const [headerDisabled, setHeaderDisabled] = useState(false)
+
 	return (
 		<div className={css.app}>
-			<Header />
+			<Header disabled={headerDisabled} />
 
-			<LazyMotion features={domAnimation}>
-				<AnimatePresence exitBeforeEnter={false} initial={false}>
+			<LazyMotion features={domAnimation} strict>
+				<AnimatePresence exitBeforeEnter={false} initial={false} onExitComplete={() => setHeaderDisabled(false)}>
 					<m.div
 						className={css.wrap}
 						key={router.route}
@@ -18,6 +21,7 @@ function App({ Component, pageProps, router }) {
 						animate="animate"
 						exit="exit"
 						variants={slideUp.variants}
+						onAnimationStart={() => setHeaderDisabled(true)}
 					>
 						<m.main
 							className={css.main}

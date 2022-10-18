@@ -9,7 +9,7 @@ const pages = [
 	{ href: '/music', name: 'Music' }
 ]
 
-export default function Navigation() {
+export default function Navigation({ disabled }) {
 	const router = useRouter()
 
 	return (
@@ -20,7 +20,7 @@ export default function Navigation() {
 					return (
 						<li className={css.listItem} key={page.href}>
 							<Link href={page.href}>
-								<a className={cls(css.link, isActive && css.active)}>{page.name}</a>
+								<a className={cls(css.link, isActive && css.active, disabled && css.disabled)}>{page.name}</a>
 							</Link>
 						</li>
 					)
