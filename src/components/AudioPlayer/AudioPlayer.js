@@ -6,9 +6,9 @@ const STROKE_COLOR = '#FAFF00'
 const FFT_SIZE = 256 // affects visualisation points count. must be equals to power of 2 and not less than 32
 const PHASE_SHIFT_FACTOR = 30 // affects "sin movement speed"
 const SIN_PERIODS_COUNT = 6
+const FREQUENCY_OFFSET = 0.08 // cut the upper frequencies
 const FREQUENCY_CUTOFF = 0.4 // cut the upper frequencies
 const INTERPOLATE_FRAME = 1
-const GAIN_FACTOR = 20
 
 function lerp(start, end, t) {
 	return start * (1 - t) + end * t
@@ -43,8 +43,6 @@ const AudioPlayer = ({ audioFile }) => {
 		const frequencyDataArray = new Uint8Array(bufferLength)
 		const pointsCount = Math.round(FREQUENCY_CUTOFF * bufferLength)
 
-		const staticNoise = Array.from({ length: pointsCount }, () => Math.random())
-
 		const canvas = canvasRef.current
 		const ctx = canvas.getContext('2d')
 		const { width, height } = canvas.getBoundingClientRect()
@@ -69,23 +67,29 @@ const AudioPlayer = ({ audioFile }) => {
 		const computeFrame = () => {
 			const frame = []
 
+			const startPoint = Math.floor(FREQUENCY_OFFSET * bufferLength)
+			// console.log('startPoint', startPoint)
+
 			for (let i = 0; i < pointsCount; i++) {
 				const signalValueInTimeDomain = (128 - timeDataArray[i]) / 128
-				const signalValueInFrequencyDomain = frequencyDataArray[i] / 255
+				const signalValueInFrequencyDomain = frequencyDataArray[i + startPoint] / 255
 
 				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
-				const sinArg = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
-				const sinArg2 = 1.27 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT - phase
-				const sinArg3 = 1.77 * (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
 
-				const sin = 1.7 * Math.sin(sinArg)
-				const sin2 = 2.1 * Math.sin(sinArg2 * 1.37)
-				const cos = 1 * Math.cos(sinArg3 * 1.77)
+				const pointsFactor = i / (pointsCount - 1)
+				const sinArg = pointsFactor * Math.PI * 2 * SIN_PERIODS_COUNT + phase
+				const sinArg2 = 1.27 * pointsFactor * Math.PI * 2 * SIN_PERIODS_COUNT - phase
+				const sinArg3 = 1.37 * pointsFactor * Math.PI * 2 * SIN_PERIODS_COUNT + phase
+
+				const sin = 1.31 * Math.sin(sinArg)
+				const sin2 = 1.41 * Math.sin(sinArg2 * 1.17)
+				const cos = 1.51 * Math.cos(sinArg3 * 1.27)
 
 				const noise = sin * sin2 * cos
 
-				let normalizedY = signalValueInFrequencyDomain
-				normalizedY += signalValueInFrequencyDomain ** 0.9 * noise
+				let normalizedY = signalValueInFrequencyDomain * 0.5
+				normalizedY += signalValueInFrequencyDomain ** 1.4 * noise
+				// normalizedY += signalValueInFrequencyDomain * Math.random() * 0.5
 
 				if (normalizedY > 1) normalizedY = 1
 				y = (height - normalizedY * height) / 2
@@ -162,7 +166,7 @@ const AudioPlayer = ({ audioFile }) => {
 					<button onClick={play}>Play</button>
 					<button onClick={pause}>Pause</button>
 				</div>
-				<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
+				<canvas className={css.canvas} height="120" width="500" ref={canvasRef} />
 			</div>
 		</div>
 	)
