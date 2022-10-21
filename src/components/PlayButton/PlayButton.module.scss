@@ -1,0 +1,36 @@
+@use 'src/styles/vars' as v;
+
+.button {
+	height: 100px;
+	width: 100px;
+	padding: 0;
+}
+
+.circle {
+	height: 100%;
+	width: 100%;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	border: 2px solid v.$yellow;
+}
+
+.playIcon {
+	position: relative;
+	left: 6px;
+}
+
+.pauseIcon {
+	display: flex;
+	justify-content: space-between;
+	width: 20%;
+	height: 40%;
+
+	&::before,
+	&::after {
+		content: '';
+		width: 2px;
+		height: 100%;
+		background-color: v.$yellow;
+	}
+}

@@ -1,0 +1,79 @@
+@use 'src/styles/mixins/shared' as s;
+@use 'src/styles/mixins/h';
+@use 'src/styles/vars' as v;
+
+.page {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.column {
+	min-height: 100%;
+	max-width: 692px;
+	margin-right: 40px;
+	padding: 92px 24px 24px;
+}
+
+.section {
+	position: relative;
+	z-index: 2;
+	border-left: 1px solid rgba(255, 255, 255, .3);
+	border-right: 1px solid rgba(255, 255, 255, .3);
+	background-color: v.$black;
+	box-shadow: -20px 0px 40px #000000;
+}
+
+.backgroundSection {
+	position: absolute;
+	top: 0;
+	z-index: 1;
+	opacity: .3;
+}
+
+.leftSection {
+	composes: backgroundSection;
+	left: 0;
+}
+
+.rightSection {
+	composes: backgroundSection;
+	left: calc(50%);
+	transform: translateX(50%);
+}
+
+.grid {
+	display: grid;
+	gap: 24px;
+	grid-template-columns: 418px 154px;
+}
+
+.h1 {
+	@include h.h1;
+}
+
+.block {
+	& + & {
+		margin-top: 40px;
+	}
+}
+
+.list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.listItem {
+	padding: 8px 24px;
+	border-radius: 32px;
+	border: 1px solid rgba(255, 255, 255, 0.4);
+	@include s.accessible-list;
+	@include h.h1;
+
+	& + & {
+		margin-top: 14px;
+	}
+}

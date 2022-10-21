@@ -1,0 +1,10 @@
+@use 'src/styles/vars';
+
+html {
+	color: vars.$white;
+	background-color: vars.$black;
+}
+
+#__next {
+	height: 100%;
+}
