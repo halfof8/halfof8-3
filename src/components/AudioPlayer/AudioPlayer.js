@@ -1,8 +1,7 @@
 import css from './AudioPlayer.module.scss'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PlayButton from '../PlayButton/PlayButton.js'
-import Timeline from '../Timeline/Timeline.js'
-import { useAnimationControls, m } from 'framer-motion'
+import { m, useAnimationControls } from 'framer-motion'
 
 const STROKE_WIDTH = 2
 const STROKE_COLOR = '#FAFF00'
@@ -12,7 +11,7 @@ const SIN_PERIODS_COUNT = 4
 const FREQUENCY_CUTOFF = 0.5
 
 const AudioPlayer = ({ audioFile }) => {
-	const canvasRef = useRef()
+	const canvasRef = useRef(null)
 	const audioRef = useRef(null)
 
 	const [isPlaying, setIsPlaying] = useState(false)
@@ -24,15 +23,42 @@ const AudioPlayer = ({ audioFile }) => {
 		setIsPlaying(!isPlaying)
 	}
 
-	const [progress, setProgress] = useState(0)
-	const timelineRef = useRef()
-	const onClick = (e) => {
-		const rect = timelineRef.current.getBoundingClientRect()
-		const value = (e.clientX - rect.left) / rect.width
-		const progressToSet = value < 0 ? 0 : value > 1 ? 1 : value
-		setProgress(progressToSet)
-		audioRef.current.currentTime = progressToSet * audioRef.current.duration
-	}
+	const progressBarAnimation = useAnimationControls()
+	const progressImgAnimation = useAnimationControls()
+	const animateProgressControls = useCallback(
+		(progress) => {
+			const width = constraintsRef.current.width
+			const x = progress * width
+			const inset = ((width - x) / width) * 100
+
+			progressBarAnimation.start({ x })
+
+			progressImgAnimation.start({
+				clipPath: `inset(0 ${inset}% 0 0)`
+			})
+		},
+		[progressBarAnimation, progressImgAnimation]
+	)
+
+	const constraintsElementRef = useRef(null)
+	const constraintsRef = useRef(null)
+
+	useEffect(() => {
+		if (!window) return
+
+		const resizeHandler = () => {
+			constraintsRef.current = constraintsElementRef.current.getBoundingClientRect()
+		}
+		resizeHandler()
+
+		window.addEventListener('resize', resizeHandler)
+
+		return () => {
+			window.removeEventListener('resize', resizeHandler)
+		}
+	}, [])
+
+	const [isDragging, setIsDragging] = useState(false)
 
 	useEffect(() => {
 		if (!window?.AudioContext) return
@@ -130,8 +156,9 @@ const AudioPlayer = ({ audioFile }) => {
 		const audio = audioRef.current
 
 		const updateHandler = () => {
-			const value = audio.currentTime / audio.duration
-			if (!isNaN(value)) setProgress(value)
+			if (isDragging) return
+			const progress = audio.currentTime / audio.duration
+			if (!isNaN(progress)) animateProgressControls(progress)
 		}
 
 		audio.addEventListener('timeupdate', updateHandler)
@@ -139,10 +166,9 @@ const AudioPlayer = ({ audioFile }) => {
 		return () => {
 			audio.removeEventListener('timeupdate', updateHandler)
 		}
-	}, [])
+	}, [animateProgressControls, isDragging])
 
 	const animation = useAnimationControls()
-
 	useEffect(() => {
 		if (!window) return
 
@@ -168,26 +194,77 @@ const AudioPlayer = ({ audioFile }) => {
 		}
 	}, [animation])
 
+	const getProgress = (x) => {
+		const rect = constraintsRef.current
+		const progress = (x - rect.left) / rect.width
+
+		if (progress < 0) return 0
+		if (progress > 1) return 1
+		return progress
+	}
+
+	const onPointerDown = (e) => {
+		setIsDragging(true)
+		const progress = getProgress(e.clientX)
+		animateProgressControls(progress)
+	}
+	const onPointerUp = (e) => {
+		setIsDragging(false)
+		const progress = getProgress(e.clientX)
+		animateProgressControls(progress)
+		audioRef.current.currentTime = progress * audioRef.current.duration
+	}
+	const onPointerMove = (e) => {
+		if (!isDragging) return
+		const progress = getProgress(e.clientX)
+		animateProgressControls(progress)
+	}
+	const onPointerOut = (e) => {
+		if (!isDragging) return
+		setIsDragging(false)
+		const progress = getProgress(e.clientX)
+		animateProgressControls(progress)
+	}
+
 	const background =
 		'https://images.ctfassets.net/4b8maak9frxn/' +
 		'7zVVJUPg3S4G0sYE9VGOjD/a1816a14902a11b8533fc8fc282cc51e/8h_audio_kodo.png?w=688&h=916&q=50&fm=png'
 
 	return (
-		<m.div className={css.player} animate={animation} transition={{ type: 'spring', mass: 0.1 }}>
-			<div className={css.background}>
-				<img className={css.backgroundImage} src={background} alt="background" />
-			</div>
+		<div className={css.root} ref={constraintsElementRef}>
+			<m.div className={css.player} animate={animation} transition={{ type: 'spring', mass: 0.1 }}>
+				<div className={css.background}>
+					<m.img
+						animate={progressImgAnimation}
+						transition={{ type: 'spring', mass: 0.1 }}
+						className={css.backgroundImage}
+						src={background}
+						alt="background"
+					/>
+					<img className={css.backgroundImage} src={background} alt="background" />
+				</div>
 
-			<div className={css.timeline} onClick={onClick} ref={timelineRef}>
-				<Timeline progress={progress} setProgress={setProgress} />
-			</div>
+				<div className={css.playButton}>
+					<PlayButton onClick={toggle} isPlaying={isPlaying} />
+				</div>
 
-			<div className={css.playButton}>
-				<PlayButton onClick={toggle} isPlaying={isPlaying} />
-			</div>
+				<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
 
-			<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
-		</m.div>
+				<div
+					className={css.dragLayer}
+					onPointerDown={onPointerDown}
+					onPointerUp={onPointerUp}
+					onPointerMove={onPointerMove}
+					onPointerOut={onPointerOut}
+				>
+					<m.div
+						className={css.progressBar}
+						animate={progressBarAnimation}
+						transition={{ type: 'spring', mass: 0.1 }}
+					/>
+				</div>
+			</m.div>
+		</div>
 	)
 }
 
