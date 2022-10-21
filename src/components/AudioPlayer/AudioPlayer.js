@@ -2,6 +2,7 @@ import css from './AudioPlayer.module.scss'
 import { useEffect, useRef, useState } from 'react'
 import PlayButton from '../PlayButton/PlayButton.js'
 import Timeline from '../Timeline/Timeline.js'
+import { useAnimationControls, m } from 'framer-motion'
 
 const STROKE_WIDTH = 2
 const STROKE_COLOR = '#FAFF00'
@@ -140,19 +141,53 @@ const AudioPlayer = ({ audioFile }) => {
 		}
 	}, [])
 
-	return (
-		<div className={css.player}>
-			<div className={css.viewport}>
-				<div className={css.timeline} onClick={onClick} ref={timelineRef}>
-					<Timeline progress={progress} setProgress={setProgress} />
-				</div>
+	const animation = useAnimationControls()
 
-				<div className={css.playButton}>
-					<PlayButton onClick={toggle} isPlaying={isPlaying} />
-				</div>
-				<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
+	useEffect(() => {
+		if (!window) return
+
+		const width = window.innerWidth
+		const height = window.innerHeight
+
+		const onMouseMove = (e) => {
+			const { clientX, clientY } = e
+
+			const x = ((clientX - width / 2) / width) * 2
+			const y = ((clientY - height / 2) / height) * 2
+
+			animation.start({
+				rotateX: -y * 15,
+				rotateY: x * 15
+			})
+		}
+
+		window.addEventListener('mousemove', onMouseMove)
+
+		return () => {
+			window.removeEventListener('mousemove', onMouseMove)
+		}
+	}, [animation])
+
+	const background =
+		'https://images.ctfassets.net/4b8maak9frxn/' +
+		'7zVVJUPg3S4G0sYE9VGOjD/a1816a14902a11b8533fc8fc282cc51e/8h_audio_kodo.png?w=688&h=916&q=50&fm=png'
+
+	return (
+		<m.div className={css.player} animate={animation} transition={{ type: 'spring', mass: 0.1 }}>
+			<div className={css.background}>
+				<img className={css.backgroundImage} src={background} alt="background" />
 			</div>
-		</div>
+
+			<div className={css.timeline} onClick={onClick} ref={timelineRef}>
+				<Timeline progress={progress} setProgress={setProgress} />
+			</div>
+
+			<div className={css.playButton}>
+				<PlayButton onClick={toggle} isPlaying={isPlaying} />
+			</div>
+
+			<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
+		</m.div>
 	)
 }
 
