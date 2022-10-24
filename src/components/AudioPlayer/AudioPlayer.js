@@ -5,7 +5,7 @@ import { m, useAnimationControls } from 'framer-motion'
 import { makeLoopWithFpsLimit, makeLoop } from '../../utils/makeLoop.js'
 
 const FPS = 12
-const STROKE_WIDTH = 2
+const STROKE_WIDTH = 1.4
 const STROKE_COLOR = '#FAFF00'
 const FFT_SIZE = 128
 const PHASE_SHIFT_FACTOR = 20
