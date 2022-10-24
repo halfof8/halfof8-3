@@ -2,7 +2,9 @@ import css from './AudioPlayer.module.scss'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import PlayButton from '../PlayButton/PlayButton.js'
 import { m, useAnimationControls } from 'framer-motion'
+import { makeLoopWithFpsLimit, makeLoop } from '../../utils/makeLoop.js'
 
+const FPS = 12
 const STROKE_WIDTH = 2
 const STROKE_COLOR = '#FAFF00'
 const FFT_SIZE = 128
@@ -81,8 +83,6 @@ const AudioPlayer = ({ audioFile }) => {
 		const dataArray = new Uint8Array(bufferLength)
 		const pointsCount = Math.round(FREQUENCY_CUTOFF * bufferLength)
 
-		const staticNoise = Array.from({ length: pointsCount }, () => Math.random())
-
 		const canvas = canvasRef.current
 		const ctx = canvas.getContext('2d')
 		const { width, height } = canvas.getBoundingClientRect()
@@ -96,40 +96,20 @@ const AudioPlayer = ({ audioFile }) => {
 			canvas.style.height = height + 'px'
 		}
 
+		const yCoordinates = []
+
+		ctx.lineWidth = STROKE_WIDTH
+		ctx.strokeStyle = STROKE_COLOR
+
 		const segmentWidth = width / (pointsCount - 1)
 		let x = 0
-		let y = height / 2
-		let phase = 0
-
-		let frameId
-		const render = () => {
-			frameId = requestAnimationFrame(render)
-
-			x = 0
-
-			analyser.getByteFrequencyData(dataArray)
-
+		const draw = () => {
 			ctx.clearRect(0, 0, width, height)
-
-			ctx.lineWidth = STROKE_WIDTH
-			ctx.strokeStyle = STROKE_COLOR
 			ctx.beginPath()
 
+			x = 0
 			for (let i = 0; i < pointsCount; i++) {
-				const signalValue = dataArray[i] / 255
-
-				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
-				const sinArg = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
-
-				const sin = Math.sin(sinArg)
-				const cos = Math.cos(sinArg * 1.17)
-				const sin2 = Math.sin(sinArg * 1.37)
-
-				const noise = staticNoise[i]
-
-				const normalizedY = sin * cos * sin2 * 0.3 * signalValue + signalValue * 0.7
-
-				y = (height - normalizedY * height) / 2
+				const y = yCoordinates[i]
 
 				if (i === 0) {
 					ctx.moveTo(x, y)
@@ -142,10 +122,34 @@ const AudioPlayer = ({ audioFile }) => {
 			ctx.stroke()
 		}
 
-		frameId = requestAnimationFrame(render)
+		let y = height / 2
+		let phase = 0
+		const calculate = () => {
+			analyser.getByteFrequencyData(dataArray)
+
+			for (let i = 0; i < pointsCount; i++) {
+				const signalValue = dataArray[i] / 255
+
+				phase += Math.PI / PHASE_SHIFT_FACTOR / (pointsCount - 1)
+				const fullPhase = (i / (pointsCount - 1)) * Math.PI * 2 * SIN_PERIODS_COUNT + phase
+
+				const noise = Math.sin(fullPhase) * Math.cos(fullPhase * 1.17) * Math.sin(fullPhase * 1.37)
+
+				const normalizedY = noise * 0.3 * signalValue + signalValue * 0.7
+
+				y = (height - normalizedY * height) / 2
+				yCoordinates[i] = y
+			}
+		}
+
+		const calculateLoop = makeLoop(calculate) // for some (unknown) reasons we need to do calculation on each frame
+		const drawLoop = makeLoopWithFpsLimit(FPS, draw)
+		calculateLoop.start()
+		drawLoop.start()
 
 		return () => {
-			cancelAnimationFrame(frameId)
+			calculateLoop.stop()
+			drawLoop.stop()
 			analyser.disconnect(ac.destination)
 			sourceNode.disconnect(analyser)
 			ac.close()
