@@ -1,0 +1,32 @@
+@use 'src/styles/vars' as v;
+
+.icon {
+	position: absolute;
+	transform: translateX(-50%) translateY(-50%);
+	display: flex;
+
+	&::before,
+	&::after {
+		content: '';
+		width: 30px;
+		height: 30px;
+		border-top: 2px solid v.$yellow;
+		border-left: 2px solid v.$yellow;
+	}
+
+	&::before {
+		transform: rotate(-45deg);
+	}
+
+	&::after {
+		transform: rotate(135deg);
+	}
+}
+
+.circle {
+	background-color: v.$black;
+	border: 2px solid v.$yellow;
+	border-radius: 50%;
+	height: 30px;
+	width: 30px;
+}
