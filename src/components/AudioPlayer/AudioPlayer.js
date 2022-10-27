@@ -1,25 +1,25 @@
 import css from './AudioPlayer.module.scss'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PlayButton from '../PlayButton/PlayButton.js'
-import { m, useMotionTemplate, useSpring, useTransform } from 'framer-motion'
+import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { useAudioAnalyser, useAudioControls } from './useAudio.js'
 import { useClientRect } from '../../hooks/useClientRect.js'
 import { useMouseTilt } from './useMouseTilt.js'
 import { useAudioVisualization } from './useAudioVisualization.js'
+import Timeseek from '../Timeseek/Timeseek.js'
+import { usePageTransition } from '../../context/pageTransition.js'
 
 const AudioPlayer = ({ audioFile, background }) => {
-	console.log('begin')
+	const { isAnimating } = usePageTransition()
+
 	const { audio, analyser } = useAudioAnalyser(audioFile)
 	const { canvasRef } = useAudioVisualization(analyser)
 	const { toggle, isPlaying } = useAudioControls(audio)
 
 	const tiltProps = useMouseTilt({ mass: 0.1 })
 
-	const [rootRect, rootRef] = useClientRect()
-
-	const [isDragging, setIsDragging] = useState(false)
-
 	const progress = useSpring(0, { mass: 0.1 })
+	const [rootRect, rootRef] = useClientRect([isAnimating])
 
 	const progressbarXValue = useTransform(progress, [0, 1], [0, rootRect?.width || 0])
 	const progressbarX = useMotionTemplate`translate3d(${progressbarXValue}px, 0, 0)`
@@ -29,6 +29,7 @@ const AudioPlayer = ({ audioFile, background }) => {
 
 	const animateProgress = useCallback((value) => progress.set(value), [progress])
 
+	const [isDragging, setIsDragging] = useState(false)
 	useEffect(() => {
 		if (!audio) return
 
@@ -77,16 +78,53 @@ const AudioPlayer = ({ audioFile, background }) => {
 		animateProgress(progress)
 	}
 
+	const [cursorMode, setCursorMode] = useState('hidden') // 'hidden' | 'following'
+
+	const dragLayerCursorX = useMotionValue(0)
+	const dragLayerCursorY = useMotionValue(0)
+
+	const onDragLayerMove = ({ clientX, clientY }) => {
+		if (cursorMode !== 'following') return
+		dragLayerCursorX.set(clientX - rootRect.left)
+		dragLayerCursorY.set(clientY - rootRect.top)
+	}
+	const playBtnRef = useRef(null)
+
+	const onDragLayerEnter = () => {
+		setCursorMode('following')
+	}
+
+	const onDragLayerExit = () => {
+		setCursorMode('hidden')
+	}
+
+	const cursorVariants = {
+		following: {
+			opacity: 1
+		},
+		hidden: {
+			opacity: 0
+		}
+	}
+
+	const cursorTransform = useMotionTemplate`translate3d(${dragLayerCursorX}px, ${dragLayerCursorY}px, 0)`
+
 	return (
-		<div className={css.root} ref={rootRef}>
+		<div className={css.root} ref={rootRef} onPointerMove={onDragLayerMove}>
 			<m.div className={css.player} {...tiltProps}>
 				<div className={css.background}>
-					<m.img style={{ clipPath }} className={css.backgroundImage} src={background} alt="background" />
-					<img className={css.backgroundImage} src={background} alt="background" />
+					<m.img
+						style={{ clipPath }}
+						className={css.backgroundImage}
+						src={background}
+						alt="background"
+						draggable={false}
+					/>
+					<img className={css.backgroundImage} src={background} alt="background" draggable={false} />
 				</div>
 
 				<div className={css.playButton}>
-					<PlayButton onClick={toggle} isPlaying={isPlaying} />
+					<PlayButton onClick={toggle} isPlaying={isPlaying} ref={playBtnRef} />
 				</div>
 
 				<canvas className={css.canvas} height="100" width="500" ref={canvasRef} />
@@ -96,9 +134,22 @@ const AudioPlayer = ({ audioFile, background }) => {
 					onPointerDown={onPointerDown}
 					onPointerUp={onPointerUp}
 					onPointerMove={onPointerMove}
-					onPointerOut={onPointerOut}
+					onPointerOut={(e) => {
+						onPointerOut(e)
+						onDragLayerExit(e)
+					}}
+					onPointerEnter={onDragLayerEnter}
 				>
 					<m.div className={css.progressBar} style={{ transform: progressbarX }} />
+
+					<m.div
+						className={css.cursor}
+						style={{ transform: cursorTransform }}
+						variants={cursorVariants}
+						animate={cursorMode}
+					>
+						<Timeseek />
+					</m.div>
 				</div>
 			</m.div>
 		</div>
