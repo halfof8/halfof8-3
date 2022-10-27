@@ -6,7 +6,7 @@ import { useAudioAnalyser, useAudioControls } from './useAudio.js'
 import { useClientRect } from '../../hooks/useClientRect.js'
 import { useMouseTilt } from './useMouseTilt.js'
 import { useAudioVisualization } from './useAudioVisualization.js'
-import Timeseek from '../Timeseek/Timeseek.js'
+import Cursor from '../Cursor/Cursor.js'
 import { usePageTransition } from '../../context/pageTransition.js'
 
 const AudioPlayer = ({ audioFile, background }) => {
@@ -148,7 +148,7 @@ const AudioPlayer = ({ audioFile, background }) => {
 						variants={cursorVariants}
 						animate={cursorMode}
 					>
-						<Timeseek />
+						<Cursor />
 					</m.div>
 				</div>
 			</m.div>
