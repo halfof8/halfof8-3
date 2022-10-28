@@ -1,8 +1,9 @@
 import css from './PlayButton.module.scss'
+import { forwardRef } from 'react'
 
-const PlayButton = ({ isPlaying = false, onClick }) => {
+const PlayButton = forwardRef(({ isPlaying = false, onClick }, ref) => {
 	return (
-		<button className={css.button} onClick={onClick}>
+		<button className={css.button} onClick={onClick} ref={ref}>
 			<span className={css.circle}>
 				{isPlaying ? (
 					<span className={css.pauseIcon} />
@@ -14,6 +15,7 @@ const PlayButton = ({ isPlaying = false, onClick }) => {
 			</span>
 		</button>
 	)
-}
+})
 
+PlayButton.displayName = 'PlayButton'
 export default PlayButton

@@ -1,16 +1,9 @@
 @use 'src/styles/vars' as v;
 
-.timeline {
-	height: 100%;
-	width: 100%;
-}
-
 .icon {
 	position: absolute;
-	top: 140px;
-	transform: translateX(-50%);
+	transform: translateX(-50%) translateY(-50%);
 	display: flex;
-	cursor: grab;
 
 	&::before,
 	&::after {
@@ -36,15 +29,4 @@
 	border-radius: 50%;
 	height: 30px;
 	width: 30px;
-}
-
-.progress {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, .6);
-	border-left: 2px solid v.$yellow;
-	transform-origin: right;
 }

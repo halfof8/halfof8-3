@@ -1,4 +1,4 @@
-import AboutPage from '../components/AboutLayout/AboutPage.js'
+import AboutPage from '../components/AboutPage/AboutPage.js'
 
 function HomePage() {
 	return (
