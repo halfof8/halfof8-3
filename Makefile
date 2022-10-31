@@ -8,3 +8,6 @@ upload-staging:
 		--exclude .cache/ \
 		--exclude .idea/ \
 		. halfof8:~/www/
+
+run: build
+	npm start
