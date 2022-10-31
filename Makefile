@@ -9,5 +9,8 @@ upload-staging:
 		--exclude .idea/ \
 		. halfof8:~/www/
 
-run: build
-	npm start
+start:
+	npx pm2 start --name halfof8 npm -- start
+
+restart:
+	npx pm2 restart halfof8
