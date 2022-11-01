@@ -1,5 +1,3 @@
-import 'swiper/css'
-import 'swiper/css/effect-coverflow'
 import css from './MusicPage.module.scss'
 import AudioPlayer from '../AudioPlayer/AudioPlayer.js'
 
