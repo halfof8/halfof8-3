@@ -8,3 +8,9 @@ upload-staging:
 		--exclude .cache/ \
 		--exclude .idea/ \
 		. halfof8:~/www/
+
+start:
+	npx pm2 start --name halfof8 npm -- start
+
+restart:
+	npx pm2 restart halfof8
