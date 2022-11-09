@@ -1,16 +1,18 @@
-import Gallery from '../components/Gallery/Gallery'
+import ArtworksPage from '../components/ArtworksPage/ArtworksPage.js'
+import { getAllArtworks } from '../api/artworks.js'
 
-const colors = ['#854c4c', '#527548', '#476894', '#9575b9', '#999a90']
-const images = Array(32)
-	.fill(0)
-	.map((_, index) => ({ color: colors[index % colors.length] }))
-
-function artworks() {
+function artworks({ images }) {
 	return (
 		<>
-			<Gallery images={images} />
+			<ArtworksPage images={images} />
 		</>
 	)
 }
 
 export default artworks
+
+export async function getStaticProps() {
+	const images = await getAllArtworks()
+	const props = { images }
+	return { props }
+}
