@@ -1,17 +1,9 @@
 export class UnitConverter {
-	constructor({ camera, width = 1, height = 1 }) {
-		this.camera = camera
-		this.screen = { width, height }
-		this.viewport = {}
-
-		this.resize()
+	constructor({ screen, viewport }) {
+		Object.assign(this, { screen, viewport })
 	}
 
 	resize() {
-		const fov = this.camera.fov * (Math.PI / 180)
-		this.viewport.height = 2 * Math.tan(fov / 2) * this.camera.position.z
-		this.viewport.width = this.viewport.height * this.camera.aspect
-
 		this.pxUnitRatio = this.viewport.height / this.screen.height
 	}
 
@@ -23,6 +15,10 @@ export class UnitConverter {
 
 	getViewportSize() {
 		return { width: this.viewport.width, height: this.viewport.height }
+	}
+
+	getScreenSize() {
+		return { width: this.screen.width, height: this.screen.height }
 	}
 
 	pxToUnit(value) {

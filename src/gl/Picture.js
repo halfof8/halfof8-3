@@ -3,30 +3,28 @@ import fragment from './shaders/picture.frag'
 import vertex from './shaders/picture.vert'
 
 export class Picture {
-	constructor({ gl, src, geometry, width, height, converter, scene }) {
-		Object.assign(this, { gl, src, geometry, width, height, converter, scene })
+	constructor({ gl, src, geometry }) {
+		Object.assign(this, { gl, src, geometry })
 
 		this._setupShader()
 		this._setupMesh()
-		this.resize()
 	}
 
-	getMesh() {
-		return this.mesh
+	setParent(parent) {
+		this.mesh.setParent(parent)
 	}
 
-	resize() {
-		const { width, height } = this.converter.getViewportSize()
-
+	setViewportSize(width, height) {
 		this.program.uniforms.uViewportSizes.value = [width, height]
-		this.mesh.scale.x = this.converter.pxToUnit(this.width)
-		this.mesh.scale.y = this.converter.pxToUnit(this.height)
-		this.mesh.program.uniforms.uPlaneSizes.value = [this.mesh.scale.x, this.mesh.scale.y]
+	}
+
+	setScale(x, y) {
+		this.mesh.scale.x = x
+		this.mesh.scale.y = y
+		this.mesh.program.uniforms.uPlaneSizes.value = [x, y]
 	}
 
 	_setupShader() {
-		const { width, height } = this.converter.getViewportSize()
-
 		const texture = new Texture(this.gl, {
 			generateMipmaps: false
 		})
@@ -40,7 +38,7 @@ export class Picture {
 				tMap: { value: texture },
 				uPlaneSizes: { value: [0, 0] },
 				uImageSizes: { value: [0, 0] },
-				uViewportSizes: { value: [width, height] }
+				uViewportSizes: { value: [1, 1] }
 			},
 			transparent: true
 		})
@@ -57,7 +55,5 @@ export class Picture {
 
 	_setupMesh() {
 		this.mesh = new Mesh(this.gl, { geometry: this.geometry, program: this.program })
-		this.position = this.mesh.position
-		this.mesh.setParent(this.scene)
 	}
 }

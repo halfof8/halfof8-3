@@ -1,25 +1,28 @@
-import { Renderer, Camera, Transform, Plane } from 'ogl'
+import { Renderer, Camera, Transform, Plane, Vec2 } from 'ogl'
 import { DragControls } from './DragControls.js'
 import { Loop } from './Loop.js'
 import { Picture } from './Picture.js'
 import { Space } from './Space.js'
 import { UnitConverter } from './UnitConverter.js'
+import { Screen } from './Screen.js'
+import { Viewport } from './Viewport.js'
 
 export class ArtworksApp {
 	constructor({ canvas, images }) {
 		Object.assign(this, { canvas, images })
+		this.translate = new Vec2(0)
 
 		this._setupRenderer()
 		this._setupCamera()
+		this._setupViewport()
 		this._setupConverter()
 		this._setupScene()
 
 		this._setupControls()
 
-		this._resize()
-
 		this._setupGeometry()
 		this._setupPictures()
+		this._resize()
 		this._setupSpace()
 
 		this._update()
@@ -48,8 +51,26 @@ export class ArtworksApp {
 		this.camera.lookAt([0, 0, 0])
 	}
 
+	_setupViewport() {
+		this.viewport = new Viewport({ camera: this.camera })
+	}
+
 	_setupConverter() {
-		this.converter = new UnitConverter({ camera: this.camera, width: window.innerWidth, height: window.innerHeight })
+		this.converter = new UnitConverter({ screen: new Screen(), viewport: this.viewport })
+	}
+
+	_setupPictureSize() {
+		const screenSize = this.converter.getScreenSize()
+		const aspectRatio = 1333 / 1000
+
+		const imagesCount = this.images.length
+		const rowCount = 4
+		const columnCount = Math.ceil(imagesCount / rowCount)
+		const minHeight = screenSize.height / (rowCount - 1)
+		const minWidth = screenSize.width / (columnCount - 2)
+
+		this.pictureHeight = Math.max(minHeight, minWidth * aspectRatio)
+		this.pictureWidth = this.pictureHeight / aspectRatio
 	}
 
 	_setupScene() {
@@ -57,7 +78,7 @@ export class ArtworksApp {
 	}
 
 	_setupControls() {
-		this.controls = new DragControls({ elem: window })
+		this.controls = new DragControls({ elem: window, ease: 0.05 })
 	}
 
 	_resize = () => {
@@ -68,11 +89,18 @@ export class ArtworksApp {
 		this.camera.perspective({
 			aspect: this.gl.canvas.width / this.gl.canvas.height
 		})
+
+		this.viewport.resize()
 		this.converter.setScreenSize(width, height)
 
+		const { width: viewportWidth, height: viewportHeight } = this.converter.getViewportSize()
+		this._setupPictureSize()
 		if (this.pictures?.length) {
-			this.pictures.forEach((picture) => picture.resize())
-			this.space.resize()
+			this.pictures.forEach((picture) => {
+				picture.setScale(this.converter.pxToUnit(this.pictureWidth), this.converter.pxToUnit(this.pictureHeight))
+				picture.setViewportSize(viewportWidth, viewportHeight)
+			})
+			this.space?.resize()
 		}
 	}
 
@@ -85,24 +113,28 @@ export class ArtworksApp {
 
 	_setupPictures() {
 		this.pictures = this.images.map((image) => {
-			return new Picture({
+			const picture = new Picture({
 				gl: this.gl,
 				src: image.src,
-				geometry: this.planeGeometry,
-				width: 240,
-				height: 320,
-				converter: this.converter,
-				scene: this.scene
+				geometry: this.planeGeometry
 			})
+
+			picture.setParent(this.scene)
+
+			return picture
 		})
 	}
 
 	_setupSpace() {
-		this.space = new Space({ meshes: this._getMeshes(), converter: this.converter })
+		this.space = new Space({
+			meshes: this._getMeshes(),
+			gap: this.converter.pxToUnit(16),
+			viewport: this.viewport
+		})
 	}
 
 	_getMeshes() {
-		return this.pictures.map((picture) => picture.getMesh())
+		return this.pictures.map((picture) => picture.mesh)
 	}
 
 	_setupLoop() {
@@ -111,7 +143,7 @@ export class ArtworksApp {
 
 	_update = () => {
 		this.controls.update()
-		this.space.setTranslate(this.controls.currentPos)
+		this.space.setTranslate(this.translate.copy(this.controls.currentPos).multiply(this.converter.pxUnitRatio * 4))
 		this.space.update()
 		this.renderer.render({ scene: this.scene, camera: this.camera })
 	}
