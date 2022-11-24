@@ -12,6 +12,7 @@ export class ArtworksApp {
 
 		this.gap = 16
 		this.pointerSpeed = 4
+		this.pointerEase = 0.05
 		this.pictureAspectRatio = 1.333
 		this.rowCount = 4
 
@@ -81,7 +82,7 @@ export class ArtworksApp {
 		const minHeight = this.screen.height / (this.rowCount - 1)
 		const minWidth = this.screen.width / (columnCount - 1)
 
-		this.pictureHeight = Math.max(minHeight, minWidth * this.pictureAspectRatio)
+		this.pictureHeight = this.pxToUnit(Math.max(minHeight, minWidth * this.pictureAspectRatio))
 		this.pictureWidth = this.pictureHeight / this.pictureAspectRatio
 	}
 
@@ -90,7 +91,7 @@ export class ArtworksApp {
 	}
 
 	_setupControls() {
-		this.controls = new DragControls({ elem: this.canvas, ease: 0.05 })
+		this.controls = new DragControls({ elem: this.canvas, ease: this.pointerEase })
 	}
 
 	_resize = () => {
@@ -105,15 +106,20 @@ export class ArtworksApp {
 		this.viewport.resize()
 		this._setupUnitRatio()
 
-		const { width: viewportWidth, height: viewportHeight } = this.viewport
 		this._setupPictureSize()
-		if (this.pictures?.length) {
-			this.pictures.forEach((picture) => {
-				picture.setScale(this.pxToUnit(this.pictureWidth), this.pxToUnit(this.pictureHeight))
-				picture.setViewportSize(viewportWidth, viewportHeight)
+
+		this.pictures.forEach((picture) => {
+			picture.setScale(this.pictureWidth, this.pictureHeight)
+			picture.setViewportSize(this.viewport.width, this.viewport.height)
+		})
+
+		this.space
+			.setParams({
+				gap: this.pxToUnit(this.gap),
+				itemWidth: this.pictureWidth,
+				itemHeight: this.pictureHeight
 			})
-			this.space?.resize()
-		}
+			.resize()
 	}
 
 	_setupGeometry() {
@@ -132,7 +138,7 @@ export class ArtworksApp {
 				geometry: this.planeGeometry
 			})
 
-			picture.setScale(this.pxToUnit(this.pictureWidth), this.pxToUnit(this.pictureHeight))
+			picture.setScale(this.pictureWidth, this.pictureHeight)
 			picture.setViewportSize(this.viewport.width, this.viewport.height)
 			picture.setParent(this.scene)
 
@@ -144,7 +150,9 @@ export class ArtworksApp {
 		this.space = new Space({
 			meshes: this._getMeshes(),
 			gap: this.pxToUnit(this.gap),
-			viewport: this.viewport
+			viewport: this.viewport,
+			itemWidth: this.pictureWidth,
+			itemHeight: this.pictureHeight
 		})
 	}
 

@@ -7,76 +7,77 @@ class SpaceItem {
 		this.translate = new Vec2(0)
 		this.offset = new Vec2(0)
 		this.extra = new Vec2(0)
-
-		this.direction = new Vec2(0)
 	}
 
 	place({ x, y }) {
-		const scale = this.mesh.scale
-
-		this.offset.x = x * (scale.x + this.gap)
-		this.offset.y = -y * (scale.y + this.gap)
+		this.offset.x = x * (this.mesh.scale.x + this.gap)
+		this.offset.y = -y * (this.mesh.scale.y + this.gap)
 
 		this.update()
 	}
 
-	setTranslate(vec2, direction) {
+	setTranslate(vec2) {
 		this.translate.copy(vec2)
-		this.direction.copy(direction)
 	}
 
 	setBounds(bounds) {
 		this.bounds = bounds
 	}
 
+	setParams({ gap, fullWidth, fullHeight }) {
+		this.gap = gap
+		this.fullWidth = fullWidth
+		this.fullHeight = fullHeight
+	}
+
 	update() {
 		this._checkBounds()
-		this.mesh.position.x = this.offset.x + this.translate.x + this.extra.x
-		this.mesh.position.y = this.offset.y + this.translate.y + this.extra.y
+		this.mesh.position.x = this.offset.x + this.translate.x + this.extra.x * this.fullWidth
+		this.mesh.position.y = this.offset.y + this.translate.y + this.extra.y * this.fullHeight
 	}
 
 	_checkBounds() {
-		if (this.direction.x < 0 && this.mesh.position.x + this.mesh.scale.x / 2 < this.bounds.left) {
-			this.extra.x += this.fullWidth
+		if (this.mesh.position.x + this.mesh.scale.x / 2 < this.bounds.left) {
+			this.extra.x += 1
 		}
 
-		if (this.direction.x > 0 && this.mesh.position.x - this.mesh.scale.x / 2 > this.bounds.right) {
-			this.extra.x -= this.fullWidth
+		if (this.mesh.position.x - this.mesh.scale.x / 2 > this.bounds.right) {
+			this.extra.x -= 1
 		}
 
-		if (this.direction.y < 0 && this.mesh.position.y + this.mesh.scale.y / 2 < this.bounds.bottom) {
-			this.extra.y += this.fullHeight
+		if (this.mesh.position.y + this.mesh.scale.y / 2 < this.bounds.bottom) {
+			this.extra.y += 1
 		}
 
-		if (this.direction.y > 0 && this.mesh.position.y - this.mesh.scale.y / 2 > this.bounds.top) {
-			this.extra.y -= this.fullHeight
+		if (this.mesh.position.y - this.mesh.scale.y / 2 > this.bounds.top) {
+			this.extra.y -= 1
 		}
 	}
 }
 
 export class Space {
-	constructor({ meshes, gap = 0, viewport }) {
-		Object.assign(this, { meshes, gap, viewport })
+	constructor({ meshes, gap = 0, viewport, itemWidth, itemHeight }) {
+		Object.assign(this, { meshes, gap, viewport, itemWidth, itemHeight })
 
 		this.itemsInColumn = 4
 		this.columnCount = Math.ceil(this.meshes.length / this.itemsInColumn)
 
 		this.translate = new Vec2(0)
 		this.lastTranslate = new Vec2(0)
-		this.direction = new Vec2(0)
 
-		this._setupBounds()
-		this.viewport.on('resize', this._setupBounds)
+		this._setupSpaceSize()
 
 		this.items = this.meshes.map((mesh) => {
 			return new SpaceItem({
 				mesh,
 				gap: this.gap,
 				bounds: this.bounds,
-				fullWidth: this._getFullWidth(),
-				fullHeight: this._getFullHeight()
+				fullWidth: this.spaceWidth,
+				fullHeight: this.spaceHeight
 			})
 		})
+
+		this._setupBounds()
 		this.place()
 	}
 
@@ -87,7 +88,7 @@ export class Space {
 	}
 
 	resize() {
-		this.items.forEach((item) => item.setBounds(this.bounds))
+		this._setupBounds()
 		this.place()
 	}
 
@@ -96,17 +97,33 @@ export class Space {
 			const rowNumber = Math.floor(index / this.itemsInColumn)
 			const columnNumber = index % this.itemsInColumn
 			item.place({ x: rowNumber - 2, y: columnNumber - 1 })
-			item.update()
 		})
 	}
 
 	setTranslate(vec2) {
 		this.lastTranslate.copy(this.translate)
 		this.translate.copy(vec2)
-		this.direction.sub(this.translate, this.lastTranslate).normalize()
 		this.items.forEach((item) => {
-			item.setTranslate(this.translate, this.direction)
+			item.setTranslate(this.translate)
 		})
+	}
+
+	setParams({ gap = this.gap, itemWidth = this.itemWidth, itemHeight = this.itemHeight }) {
+		this.gap = gap
+
+		this.itemWidth = itemWidth
+		this.itemHeight = itemHeight
+		this._setupSpaceSize()
+
+		this.items.forEach((item) => {
+			item.setParams({
+				gap: this.gap,
+				fullWidth: this.spaceWidth,
+				fullHeight: this.spaceHeight
+			})
+		})
+
+		return this
 	}
 
 	_setupBounds = () => {
@@ -117,18 +134,13 @@ export class Space {
 			left: -this.viewport.width / 2
 		}
 
-		if (this.items?.length) {
-			this.items.forEach((item) => {
-				item.setBounds(this.bounds)
-			})
-		}
+		this.items.forEach((item) => {
+			item.setBounds(this.bounds)
+		})
 	}
 
-	_getFullWidth() {
-		return this.columnCount * (this.meshes[0].scale.x + this.gap)
-	}
-
-	_getFullHeight() {
-		return this.itemsInColumn * (this.meshes[0].scale.y + this.gap)
+	_setupSpaceSize() {
+		this.spaceWidth = this.columnCount * (this.itemWidth + this.gap)
+		this.spaceHeight = this.itemsInColumn * (this.itemHeight + this.gap)
 	}
 }
