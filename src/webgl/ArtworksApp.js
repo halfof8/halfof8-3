@@ -14,8 +14,8 @@ export class ArtworksApp {
 		this.pointerSpeed = 4
 		this.pointerEase = 0.05
 		this.pictureAspectRatio = 1.333
-		this.itemsInColumn = 4 // mb row count?
-		this.itemsInRow = Math.ceil(this.images.length / this.itemsInColumn) // mb column count?
+		this.rowCount = 4
+		this.columnCount = Math.ceil(this.images.length / this.rowCount)
 
 		this.translate = new Vec2(0)
 
@@ -78,9 +78,9 @@ export class ArtworksApp {
 
 	_setupPictureSize() {
 		const imagesCount = this.images.length
-		const columnCount = Math.ceil(imagesCount / this.itemsInColumn)
+		const columnCount = Math.ceil(imagesCount / this.rowCount)
 
-		const minHeight = this.screen.height / (this.itemsInColumn - 1)
+		const minHeight = this.screen.height / (this.rowCount - 1)
 		const minWidth = this.screen.width / (columnCount - 1)
 
 		this.pictureHeight = this.pxToUnit(Math.max(minHeight, minWidth * this.pictureAspectRatio))
@@ -134,7 +134,7 @@ export class ArtworksApp {
 		this._setupPictureSize()
 
 		this.pictures = []
-		for (let i = 0; i < this.itemsInColumn * this.itemsInRow; i += 1) {
+		for (let i = 0; i < this.rowCount * this.columnCount; i += 1) {
 			const imageIndex = i % this.images.length
 			const image = this.images[imageIndex]
 
@@ -157,7 +157,8 @@ export class ArtworksApp {
 			meshes: this._getMeshes(),
 			gap: this.pxToUnit(this.gap),
 			viewport: this.viewport,
-			itemsInColumn: this.itemsInColumn,
+			rowCount: this.rowCount,
+			columnCount: this.columnCount,
 			itemWidth: this.pictureWidth,
 			itemHeight: this.pictureHeight
 		})

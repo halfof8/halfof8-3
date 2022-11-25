@@ -52,10 +52,8 @@ class SpaceItem {
 }
 
 export class Space {
-	constructor({ meshes, gap = 0, viewport, itemsInColumn, itemWidth, itemHeight }) {
-		Object.assign(this, { meshes, gap, viewport, itemsInColumn, itemWidth, itemHeight })
-
-		this.columnCount = Math.ceil(this.meshes.length / this.itemsInColumn)
+	constructor({ meshes, gap = 0, viewport, rowCount, columnCount, itemWidth, itemHeight }) {
+		Object.assign(this, { meshes, gap, viewport, rowCount, columnCount, itemWidth, itemHeight })
 
 		this.parallaxSpeed = 0.1
 		this.parallaxState = 0
@@ -93,8 +91,8 @@ export class Space {
 
 	place() {
 		this.items.forEach((item, index) => {
-			const columnNumber = Math.floor(index / this.itemsInColumn)
-			const rowNumber = index % this.itemsInColumn
+			const columnNumber = Math.floor(index / this.rowCount)
+			const rowNumber = index % this.rowCount
 			item.place({ x: columnNumber, y: rowNumber })
 		})
 	}
@@ -106,7 +104,7 @@ export class Space {
 		this.parallaxState += this.direction.y
 
 		this.items.forEach((item, index) => {
-			const columnNumber = Math.floor(index / this.itemsInColumn)
+			const columnNumber = Math.floor(index / this.rowCount)
 
 			item.translate.copy(vec2)
 			item.translate.y += this.parallaxState * this.parallaxSpeed * (columnNumber % this.uniqueParallaxCount)
@@ -146,6 +144,6 @@ export class Space {
 
 	_setupSpaceSize() {
 		this.spaceWidth = this.columnCount * (this.itemWidth + this.gap)
-		this.spaceHeight = this.itemsInColumn * (this.itemHeight + this.gap)
+		this.spaceHeight = this.rowCount * (this.itemHeight + this.gap)
 	}
 }
