@@ -1,7 +1,7 @@
 import css from './Layout.module.scss'
 import Header from '../Header/Header.js'
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion'
-import { fadeIn, slideUp } from '../../lib/animations.js'
+import { pageAnimation } from '../../lib/animations.js'
 import { useTransitionFix } from '../../hooks/useTransitionFix.js'
 import { useRouter } from 'next/dist/client/router'
 import { usePageTransition } from '../../context/pageTransition.js'
@@ -24,25 +24,17 @@ const Layout = ({ children }) => {
 
 			<LazyMotion features={domAnimation} strict>
 				<AnimatePresence exitBeforeEnter={false} initial={false} onExitComplete={onExitComplete}>
-					<m.div
+					<m.main
 						className={css.wrap}
 						key={router.route}
 						initial="initial"
 						animate="animate"
 						exit="exit"
-						variants={slideUp.variants}
+						variants={pageAnimation.variants}
 						onAnimationStart={onAnimationStart}
 					>
-						<m.main
-							className={css.main}
-							initial="initial"
-							animate="animate"
-							exit="exit"
-							variants={fadeIn.variants}
-						>
-							{children}
-						</m.main>
-					</m.div>
+						{children}
+					</m.main>
 				</AnimatePresence>
 			</LazyMotion>
 		</div>
