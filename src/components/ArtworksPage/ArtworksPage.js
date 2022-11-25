@@ -1,6 +1,6 @@
 import css from './ArtworksPage.module.scss'
 import { useEffect, useRef } from 'react'
-import { ArtworksApp } from '../../gl'
+import { ArtworksApp } from '../../webgl'
 
 // todo memoize gl app
 // const memoizedApp = ({ canvas }) => {
