@@ -52,10 +52,9 @@ class SpaceItem {
 }
 
 export class Space {
-	constructor({ meshes, gap = 0, viewport, itemWidth, itemHeight }) {
-		Object.assign(this, { meshes, gap, viewport, itemWidth, itemHeight })
+	constructor({ meshes, gap = 0, viewport, itemsInColumn, itemWidth, itemHeight }) {
+		Object.assign(this, { meshes, gap, viewport, itemsInColumn, itemWidth, itemHeight })
 
-		this.itemsInColumn = 4
 		this.columnCount = Math.ceil(this.meshes.length / this.itemsInColumn)
 
 		this.parallaxSpeed = 0.1
