@@ -16,10 +16,6 @@ class SpaceItem {
 		this.update()
 	}
 
-	setTranslate(vec2) {
-		this.translate.copy(vec2)
-	}
-
 	setBounds(bounds) {
 		this.bounds = bounds
 	}
@@ -62,8 +58,12 @@ export class Space {
 		this.itemsInColumn = 4
 		this.columnCount = Math.ceil(this.meshes.length / this.itemsInColumn)
 
-		this.translate = new Vec2(0)
+		this.parallaxSpeed = 0.1
+		this.parallaxState = 0
+		this.uniqueParallaxCount = 4
+
 		this.lastTranslate = new Vec2(0)
+		this.direction = new Vec2(0)
 
 		this._setupSpaceSize()
 
@@ -94,17 +94,23 @@ export class Space {
 
 	place() {
 		this.items.forEach((item, index) => {
-			const rowNumber = Math.floor(index / this.itemsInColumn)
-			const columnNumber = index % this.itemsInColumn
-			item.place({ x: rowNumber - 2, y: columnNumber - 1 })
+			const columnNumber = Math.floor(index / this.itemsInColumn)
+			const rowNumber = index % this.itemsInColumn
+			item.place({ x: columnNumber, y: rowNumber })
 		})
 	}
 
 	setTranslate(vec2) {
-		this.lastTranslate.copy(this.translate)
-		this.translate.copy(vec2)
-		this.items.forEach((item) => {
-			item.setTranslate(this.translate)
+		this.direction.sub(vec2, this.lastTranslate)
+		this.lastTranslate.copy(vec2)
+
+		this.parallaxState += this.direction.y
+
+		this.items.forEach((item, index) => {
+			const columnNumber = Math.floor(index / this.itemsInColumn)
+
+			item.translate.copy(vec2)
+			item.translate.y += this.parallaxState * this.parallaxSpeed * (columnNumber % this.uniqueParallaxCount)
 		})
 	}
 
