@@ -1,7 +1,7 @@
 build:
 	npm run build
 
-upload-staging:
+staging-upload:
 	rsync -r --delete \
 		--exclude node_modules/ \
 		--exclude .git/ \
@@ -9,8 +9,12 @@ upload-staging:
 		--exclude .idea/ \
 		. halfof8:~/www/
 
-start:
-	npx pm2 start --name halfof8 npm -- start
+staging-start:
+	pm2 start --name halfof8 npm -- start
 
-restart:
-	npx pm2 restart halfof8
+staging-stop:
+	pm2 kill --name halfof8
+	pm2 delete --name halfof8
+
+staging-restart:
+	pm2 restart halfof8
