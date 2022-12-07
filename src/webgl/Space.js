@@ -1,4 +1,4 @@
-import { Vec2 } from 'ogl'
+import { Transform, Vec2 } from 'ogl'
 
 class SpaceItem {
 	constructor({ mesh, gap, bounds, fullWidth, fullHeight }) {
@@ -7,11 +7,13 @@ class SpaceItem {
 		this.translate = new Vec2(0)
 		this.offset = new Vec2(0)
 		this.extra = new Vec2(0)
+
+		this.cell = new Transform()
 	}
 
 	place({ x, y }) {
-		this.offset.x = x * (this.mesh.scale.x + this.gap)
-		this.offset.y = -y * (this.mesh.scale.y + this.gap)
+		this.offset.x = x * (this.cell.position.x + this.gap)
+		this.offset.y = -y * (this.cell.position.y + this.gap)
 
 		this.update()
 	}
@@ -28,24 +30,25 @@ class SpaceItem {
 
 	update() {
 		this._checkBounds()
-		this.mesh.position.x = this.offset.x + this.translate.x + this.extra.x * this.fullWidth
-		this.mesh.position.y = this.offset.y + this.translate.y + this.extra.y * this.fullHeight
+		this.cell.position.x = this.offset.x + this.translate.x + this.extra.x * this.fullWidth
+		this.cell.position.y = this.offset.y + this.translate.y + this.extra.y * this.fullHeight
+		this.mesh.position.copy(this.cell.position)
 	}
 
 	_checkBounds() {
-		if (this.mesh.position.x + this.mesh.scale.x / 2 < this.bounds.left) {
+		if (this.cell.position.x + this.cell.scale.x / 2 < this.bounds.left) {
 			this.extra.x += 1
 		}
 
-		if (this.mesh.position.x - this.mesh.scale.x / 2 > this.bounds.right) {
+		if (this.cell.position.x - this.cell.scale.x / 2 > this.bounds.right) {
 			this.extra.x -= 1
 		}
 
-		if (this.mesh.position.y + this.mesh.scale.y / 2 < this.bounds.bottom) {
+		if (this.cell.position.y + this.cell.scale.y / 2 < this.bounds.bottom) {
 			this.extra.y += 1
 		}
 
-		if (this.mesh.position.y - this.mesh.scale.y / 2 > this.bounds.top) {
+		if (this.cell.position.y - this.cell.scale.y / 2 > this.bounds.top) {
 			this.extra.y -= 1
 		}
 	}
