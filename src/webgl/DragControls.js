@@ -21,6 +21,7 @@ export class DragControls {
 		this.elem.addEventListener('pointerdown', this._onPointerDown)
 		this.elem.addEventListener('pointermove', this._onPointerMove)
 		this.elem.addEventListener('pointerup', this._onPointerUp)
+		this.elem.addEventListener('pointerout', this._onPointerUp)
 	}
 
 	disable() {
@@ -28,6 +29,7 @@ export class DragControls {
 		this.elem.removeEventListener('pointerdown', this._onPointerDown)
 		this.elem.removeEventListener('pointermove', this._onPointerMove)
 		this.elem.removeEventListener('pointerup', this._onPointerUp)
+		this.elem.removeEventListener('pointerout', this._onPointerUp)
 	}
 
 	update() {
