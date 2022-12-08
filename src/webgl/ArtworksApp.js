@@ -1,10 +1,11 @@
-import { Camera, Plane, Renderer, Transform, Vec2 } from 'ogl'
+import { Camera, Renderer, Transform, Vec2 } from 'ogl'
 import { DragControls } from './DragControls.js'
 import { Loop } from './Loop.js'
 import { Picture } from './Picture.js'
-import { Space } from './Space.js'
 import { Screen } from './Screen.js'
 import { Viewport } from './Viewport.js'
+import { RoundedPlane } from './geometry/RoundedPlane.js'
+import { Grid } from './Grid.js'
 
 export class ArtworksApp {
 	constructor({ canvas, images }) {
@@ -13,7 +14,7 @@ export class ArtworksApp {
 		this.gap = 16
 		this.pointerSpeed = 4
 		this.pointerEase = 0.05
-		this.pictureAspectRatio = 1.333
+		this.pictureAspectRatio = 1.3333
 		this.rowCount = 4
 		this.columnCount = Math.ceil(this.images.length / this.rowCount)
 
@@ -29,8 +30,11 @@ export class ArtworksApp {
 
 		this._setupScene()
 		this._setupGeometry()
+
+		this._setupPictureSize()
 		this._setupPictures()
 
+		this._setupBounds()
 		this._setupSpace()
 		this._setupControls()
 
@@ -106,66 +110,64 @@ export class ArtworksApp {
 
 		this.viewport.resize()
 		this._setupUnitRatio()
+		this._setupBounds()
 
 		this._setupPictureSize()
-
 		this.pictures.forEach((picture) => {
-			picture.setScale(this.pictureWidth, this.pictureHeight)
-			picture.setViewportSize(this.viewport.width, this.viewport.height)
+			picture.scale.set(this.pictureWidth)
 		})
-
-		this.space
-			.setParams({
-				gap: this.pxToUnit(this.gap),
-				itemWidth: this.pictureWidth,
-				itemHeight: this.pictureHeight
-			})
-			.resize()
+		this.grid.bounds = this.bounds
+		this.grid.gap = this.pxToUnit(this.gap)
+		this.grid.setCellSize(this.pictureWidth, this.pictureHeight)
+		this.grid.placeCells()
 	}
 
 	_setupGeometry() {
-		this.planeGeometry = new Plane(this.gl, {
-			heightSegments: 1,
-			widthSegments: 1
+		this.geometry = new RoundedPlane(this.gl, {
+			width: 1,
+			height: 1.3333,
+			radius: 0.05,
+			smoothness: 16
 		})
 	}
 
 	_setupPictures() {
-		this._setupPictureSize()
-
 		this.pictures = []
 		for (let i = 0; i < this.rowCount * this.columnCount; i += 1) {
 			const imageIndex = i % this.images.length
 			const image = this.images[imageIndex]
 
-			const picture = new Picture({
-				gl: this.gl,
-				src: image.src,
-				geometry: this.planeGeometry
-			})
-
-			picture.setScale(this.pictureWidth, this.pictureHeight)
-			picture.setViewportSize(this.viewport.width, this.viewport.height)
-			picture.setParent(this.scene)
+			const picture = new Picture({ gl: this.gl })
+			picture.setup(image.src, this.geometry)
+			picture.scale.set(this.pictureWidth)
 
 			this.pictures.push(picture)
 		}
 	}
 
 	_setupSpace() {
-		this.space = new Space({
-			meshes: this._getMeshes(),
+		this.grid = new Grid({
+			gl: this.gl,
 			gap: this.pxToUnit(this.gap),
-			viewport: this.viewport,
-			rowCount: this.rowCount,
-			columnCount: this.columnCount,
-			itemWidth: this.pictureWidth,
-			itemHeight: this.pictureHeight
+			translate: this.translate,
+			scene: this.scene,
+			bounds: this.bounds,
+			size: new Vec2(this.columnCount, this.rowCount),
+			cellSize: new Vec2(this.pictureWidth, this.pictureHeight)
+		})
+
+		this.grid.traverse((cell, index) => {
+			this.pictures[index].setParent(cell)
 		})
 	}
 
-	_getMeshes() {
-		return this.pictures.map((picture) => picture.mesh)
+	_setupBounds = () => {
+		this.bounds = {
+			top: this.viewport.height / 2,
+			right: this.viewport.width / 2,
+			bottom: -this.viewport.height / 2,
+			left: -this.viewport.width / 2
+		}
 	}
 
 	_setupLoop() {
@@ -174,10 +176,12 @@ export class ArtworksApp {
 
 	_update = () => {
 		this.controls.update()
-		this.space.setTranslate(
-			this.translate.copy(this.controls.currentPos).multiply(this.unitRatio * this.pointerSpeed)
-		)
-		this.space.update()
+
+		this.translate.copy(this.controls.currentPos).multiply(this.unitRatio * this.pointerSpeed)
+
+		this.grid.setTranslate(this.translate)
+		this.grid.update()
+
 		this.renderer.render({ scene: this.scene, camera: this.camera })
 	}
 

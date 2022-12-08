@@ -1,30 +1,21 @@
-import { Mesh, Program, Texture } from 'ogl'
-import fragment from './shaders/picture.frag'
-import vertex from './shaders/picture.vert'
+import { Mesh, Program, Texture, Transform } from 'ogl'
+import fragment from './shaders/image.frag'
+import vertex from './shaders/image.vert'
 
-export class Picture {
-	constructor({ gl, src, geometry }) {
-		Object.assign(this, { gl, src, geometry })
-
-		this._setupShader()
-		this._setupMesh()
+export class Picture extends Transform {
+	constructor({ gl }) {
+		super()
+		this.gl = gl
 	}
 
-	setParent(parent) {
-		this.mesh.setParent(parent)
+	setup(src, geometry) {
+		this._setupShader(src)
+		this._setupMesh(geometry)
+
+		return this
 	}
 
-	setViewportSize(width, height) {
-		this.program.uniforms.uViewportSizes.value = [width, height]
-	}
-
-	setScale(x, y) {
-		this.mesh.scale.x = x
-		this.mesh.scale.y = y
-		this.mesh.program.uniforms.uPlaneSizes.value = [x, y]
-	}
-
-	_setupShader() {
+	_setupShader(src) {
 		const texture = new Texture(this.gl, {
 			generateMipmaps: false
 		})
@@ -35,10 +26,7 @@ export class Picture {
 			fragment,
 			vertex,
 			uniforms: {
-				tMap: { value: texture },
-				uPlaneSizes: { value: [0, 0] },
-				uImageSizes: { value: [0, 0] },
-				uViewportSizes: { value: [1, 1] }
+				tMap: { value: texture }
 			},
 			transparent: true
 		})
@@ -46,14 +34,14 @@ export class Picture {
 		const image = new Image()
 
 		image.crossOrigin = 'anonymous'
-		image.src = this.src
+		image.src = src
 		image.onload = () => {
 			texture.image = image
-			this.program.uniforms.uImageSizes.value = [image.naturalWidth, image.naturalHeight]
 		}
 	}
 
-	_setupMesh() {
-		this.mesh = new Mesh(this.gl, { geometry: this.geometry, program: this.program })
+	_setupMesh(geometry) {
+		this.mesh = new Mesh(this.gl, { geometry, program: this.program })
+		this.mesh.setParent(this)
 	}
 }
