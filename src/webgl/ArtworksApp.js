@@ -6,13 +6,16 @@ import { Screen } from './Screen.js'
 import { Viewport } from './Viewport.js'
 import { RoundedPlane } from './geometry/RoundedPlane.js'
 import { Grid } from './Grid.js'
+import { WheelControls } from './WheelControls.js'
+import { ControlsComposer } from './ControlsComposer.js'
+import { ArrowControls } from './ArrowControls.js'
 
 export class ArtworksApp {
 	constructor({ canvas, images }) {
 		Object.assign(this, { canvas, images })
 
 		this.gap = 16
-		this.pointerSpeed = 4
+		this.controlsMultiplier = 4
 		this.pointerEase = 0.05
 		this.pictureAspectRatio = 1.3333
 		this.rowCount = 4
@@ -46,6 +49,7 @@ export class ArtworksApp {
 
 	destroy() {
 		this.controls.disable()
+		// this.wheelControls.disable()
 		this.loop.stop()
 		window.removeEventListener('resize', this._resize)
 	}
@@ -96,7 +100,15 @@ export class ArtworksApp {
 	}
 
 	_setupControls() {
-		this.controls = new DragControls({ elem: this.canvas, ease: this.pointerEase })
+		const options = { elem: this.canvas, ease: this.pointerEase }
+		this.controls = new ControlsComposer([
+			new DragControls(options),
+			new WheelControls({
+				...options,
+				multiplier: { x: -0.5, y: 0.5 }
+			}),
+			new ArrowControls({ ...options, elem: window, amount: { x: 50, y: 50 } })
+		])
 	}
 
 	_resize = () => {
@@ -177,7 +189,7 @@ export class ArtworksApp {
 	_update = () => {
 		this.controls.update()
 
-		this.translate.copy(this.controls.currentPos).multiply(this.unitRatio * this.pointerSpeed)
+		this.translate.copy(this.controls.currentPos).multiply(this.unitRatio * this.controlsMultiplier)
 
 		this.grid.setTranslate(this.translate)
 		this.grid.update()
@@ -186,6 +198,7 @@ export class ArtworksApp {
 	}
 
 	_enable() {
+		// this.wheelControls.enable()
 		this.controls.enable()
 		window.addEventListener('resize', this._resize)
 		this.loop.start()
