@@ -25,7 +25,7 @@ export class RoundedPlane extends Geometry {
 		const n = (s + 1) * 4 // number of segments
 		let qu, sgx, sgy, x, y
 
-		for (let j = 1; j < n; j++) {
+		for (let j = 1; j < n + 1; j++) {
 			index.push(0, j, j + 1) // 0 is center
 			normal.push(0, 0, 1)
 		}
@@ -33,7 +33,7 @@ export class RoundedPlane extends Geometry {
 		position.push(0, 0, 0) // rectangle center
 		uv.push(0.5, 0.5)
 
-		for (let j = 0; j < n; j++) {
+		for (let j = 0; j < n + 1; j++) {
 			contour(j)
 		}
 

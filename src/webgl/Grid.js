@@ -20,7 +20,7 @@ export class Grid {
 	constructor({ gl, gap, scene, bounds, size, cellSize }) {
 		Object.assign(this, { gl, gap, scene, bounds, size, cellSize })
 
-		this.parallaxSpeed = 0.2
+		this.parallaxSpeed = 0.4
 		this.parallaxState = 0
 
 		this.cells = []

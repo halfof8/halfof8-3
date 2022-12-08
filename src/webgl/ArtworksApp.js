@@ -137,7 +137,7 @@ export class ArtworksApp {
 			width: 1,
 			height: 1.3333,
 			radius: 0.05,
-			smoothness: 16
+			smoothness: 8
 		})
 	}
 
