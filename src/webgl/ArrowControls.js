@@ -35,7 +35,7 @@ export class ArrowControls {
 		if (!KEYS.includes(code)) return
 
 		const axis = code === KEY_LEFT || code === KEY_RIGHT ? 'x' : 'y'
-		const multiplier = code === KEY_LEFT || code === KEY_DOWN ? 1 : -1
+		const multiplier = code === KEY_RIGHT || code === KEY_UP ? -1 : 1
 		this.targetPos[axis] += this.amount[axis] * multiplier
 	}
 }

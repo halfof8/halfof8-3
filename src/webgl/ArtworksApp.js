@@ -49,7 +49,6 @@ export class ArtworksApp {
 
 	destroy() {
 		this.controls.disable()
-		// this.wheelControls.disable()
 		this.loop.stop()
 		window.removeEventListener('resize', this._resize)
 	}
@@ -101,13 +100,12 @@ export class ArtworksApp {
 
 	_setupControls() {
 		const options = { elem: this.canvas, ease: this.pointerEase }
+		const amount = { x: 50, y: 50 }
+
 		this.controls = new ControlsComposer([
 			new DragControls(options),
-			new WheelControls({
-				...options,
-				multiplier: { x: -0.5, y: 0.5 }
-			}),
-			new ArrowControls({ ...options, elem: window, amount: { x: 50, y: 50 } })
+			new WheelControls({ ...options, amount }),
+			new ArrowControls({ ...options, amount, elem: window })
 		])
 	}
 
@@ -198,7 +196,6 @@ export class ArtworksApp {
 	}
 
 	_enable() {
-		// this.wheelControls.enable()
 		this.controls.enable()
 		window.addEventListener('resize', this._resize)
 		this.loop.start()
