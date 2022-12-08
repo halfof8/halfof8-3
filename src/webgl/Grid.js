@@ -55,7 +55,7 @@ export class Grid {
 
 	setCellSize(x, y) {
 		this.cellSize.set(x, y)
-		this.placeCells()
+		this._computeDimension()
 	}
 
 	placeCells() {

@@ -6,7 +6,6 @@ import { Screen } from './Screen.js'
 import { Viewport } from './Viewport.js'
 import { RoundedPlane } from './geometry/RoundedPlane.js'
 import { Grid } from './Grid.js'
-import { Square } from './scene/Square.js'
 
 export class ArtworksApp {
 	constructor({ canvas, images }) {
@@ -111,12 +110,16 @@ export class ArtworksApp {
 
 		this.viewport.resize()
 		this._setupUnitRatio()
+		this._setupBounds()
 
 		this._setupPictureSize()
-
 		this.pictures.forEach((picture) => {
-			picture.setScale(this.pictureWidth, this.pictureHeight)
+			picture.scale.set(this.pictureWidth)
 		})
+		this.space.bounds = this.bounds
+		this.space.gap = this.pxToUnit(this.gap)
+		this.space.setCellSize(this.pictureWidth, this.pictureHeight)
+		this.space.placeCells()
 	}
 
 	_setupGeometry() {
@@ -149,9 +152,6 @@ export class ArtworksApp {
 		})
 
 		this.space.traverse((cell, index) => {
-			const helper = new Square(this.gl)
-			helper.setScale(this.pictureWidth, this.pictureHeight)
-			helper.setParent(cell)
 			this.pictures[index].setParent(cell)
 		})
 	}
