@@ -27,7 +27,6 @@ export class RoundedPlane extends Geometry {
 
 		for (let j = 1; j < n + 1; j++) {
 			index.push(0, j, j + 1) // 0 is center
-			normal.push(0, 0, 1)
 		}
 		index.push(0, n, 1)
 		position.push(0, 0, 0) // rectangle center
@@ -36,6 +35,10 @@ export class RoundedPlane extends Geometry {
 		for (let j = 0; j < n + 1; j++) {
 			contour(j)
 		}
+
+		position.forEach(() => {
+			normal.push(0, 0, 1)
+		})
 
 		function contour(j) {
 			qu = Math.trunc((4 * j) / n) + 1 // quadrant  qu: 1..4
