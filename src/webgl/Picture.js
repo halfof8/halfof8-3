@@ -26,10 +26,7 @@ export class Picture extends Transform {
 			fragment,
 			vertex,
 			uniforms: {
-				tMap: { value: texture },
-				uPlaneSizes: { value: [0, 0] },
-				uImageSizes: { value: [0, 0] },
-				uViewportSizes: { value: [1, 1] }
+				tMap: { value: texture }
 			},
 			transparent: true
 		})
@@ -40,7 +37,6 @@ export class Picture extends Transform {
 		image.src = src
 		image.onload = () => {
 			texture.image = image
-			// this.program.uniforms.uImageSizes.value = [image.naturalWidth, image.naturalHeight]
 		}
 	}
 

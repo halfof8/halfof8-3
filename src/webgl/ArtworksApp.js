@@ -116,14 +116,19 @@ export class ArtworksApp {
 		this.pictures.forEach((picture) => {
 			picture.scale.set(this.pictureWidth)
 		})
-		this.space.bounds = this.bounds
-		this.space.gap = this.pxToUnit(this.gap)
-		this.space.setCellSize(this.pictureWidth, this.pictureHeight)
-		this.space.placeCells()
+		this.grid.bounds = this.bounds
+		this.grid.gap = this.pxToUnit(this.gap)
+		this.grid.setCellSize(this.pictureWidth, this.pictureHeight)
+		this.grid.placeCells()
 	}
 
 	_setupGeometry() {
-		this.geometry = RoundedPlane(this.gl, 1, 1.333, 0.05, 16)
+		this.geometry = new RoundedPlane(this.gl, {
+			width: 1,
+			height: 1.3333,
+			radius: 0.05,
+			smoothness: 16
+		})
 	}
 
 	_setupPictures() {
@@ -141,7 +146,7 @@ export class ArtworksApp {
 	}
 
 	_setupSpace() {
-		this.space = new Grid({
+		this.grid = new Grid({
 			gl: this.gl,
 			gap: this.pxToUnit(this.gap),
 			translate: this.translate,
@@ -151,7 +156,7 @@ export class ArtworksApp {
 			cellSize: new Vec2(this.pictureWidth, this.pictureHeight)
 		})
 
-		this.space.traverse((cell, index) => {
+		this.grid.traverse((cell, index) => {
 			this.pictures[index].setParent(cell)
 		})
 	}
@@ -174,8 +179,8 @@ export class ArtworksApp {
 
 		this.translate.copy(this.controls.currentPos).multiply(this.unitRatio * this.pointerSpeed)
 
-		this.space.setTranslate(this.translate)
-		this.space.update()
+		this.grid.setTranslate(this.translate)
+		this.grid.update()
 
 		this.renderer.render({ scene: this.scene, camera: this.camera })
 	}
