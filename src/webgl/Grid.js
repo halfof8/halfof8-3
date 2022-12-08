@@ -1,11 +1,11 @@
-import { Transform, Vec2, Vec3 } from 'ogl'
-import { Square } from './scene/Square.js'
+import { Transform, Vec2 } from 'ogl'
 
 export class Cell extends Transform {
-	constructor({ translate, dimension }) {
+	constructor({ index, dimension }) {
 		super()
-		Object.assign(this, { translate, dimension })
+		Object.assign(this, { index, dimension })
 
+		this.translate = new Vec2(0)
 		this.offset = new Vec2(0)
 		this.shift = new Vec2(0)
 	}
@@ -17,27 +17,29 @@ export class Cell extends Transform {
 }
 
 export class Grid {
-	constructor({ gl, gap, translate, scene, bounds, size, cellSize }) {
-		Object.assign(this, { gl, gap, translate, scene, bounds, size, cellSize })
+	constructor({ gl, gap, scene, bounds, size, cellSize }) {
+		Object.assign(this, { gl, gap, scene, bounds, size, cellSize })
 
-		// todo parallax
-		this.parallaxSpeed = 0.1
+		this.parallaxSpeed = 0.2
 		this.parallaxState = 0
-		this.uniqueParallaxCount = 4
 
 		this.cells = []
-		this.dimension = new Vec2()
+		this.dimension = new Vec2(0)
+		this.translate = new Vec2(0)
 
 		this._computeDimension()
 		this._makeCells()
 	}
 
 	update() {
-		this.traverse((cell, index) => {
-			cell.update()
-			this._checkBounds(cell)
+		this.parallaxState = this.translate.y * this.parallaxSpeed
 
-			const columnNumber = Math.floor(index / this.size.y)
+		this.traverse((cell) => {
+			cell.translate.copy(this.translate)
+			cell.translate.y += this.parallaxState * (cell.index.x / this.size.x)
+			cell.update()
+
+			this._checkBounds(cell)
 		})
 	}
 
@@ -45,6 +47,10 @@ export class Grid {
 		this.cells.forEach((cell, index) => {
 			fn(cell, index)
 		})
+	}
+
+	setTranslate(vec2) {
+		this.translate.copy(vec2)
 	}
 
 	setCellSize(x, y) {
@@ -62,7 +68,7 @@ export class Grid {
 		for (let i = 0; i < this.size.x; i++) {
 			for (let j = 0; j < this.size.y; j++) {
 				const cell = new Cell({
-					gl: this.gl,
+					index: { x: i, y: j },
 					translate: this.translate,
 					dimension: this.dimension
 				})
@@ -82,22 +88,18 @@ export class Grid {
 	_checkBounds(cell) {
 		if (cell.position.x + this.cellSize.x / 2 < this.bounds.left) {
 			cell.shift.x += 1
-			// console.log('right')
 		}
 
 		if (cell.position.x - this.cellSize.x / 2 > this.bounds.right) {
 			cell.shift.x -= 1
-			// console.log('left')
 		}
 
 		if (cell.position.y + this.cellSize.y / 2 < this.bounds.bottom) {
 			cell.shift.y += 1
-			// console.log('top')
 		}
 
 		if (cell.position.y - this.cellSize.y / 2 > this.bounds.top) {
 			cell.shift.y -= 1
-			// console.log('bottom')
 		}
 	}
 }

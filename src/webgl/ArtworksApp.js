@@ -171,8 +171,12 @@ export class ArtworksApp {
 
 	_update = () => {
 		this.controls.update()
+
 		this.translate.copy(this.controls.currentPos).multiply(this.unitRatio * this.pointerSpeed)
+
+		this.space.setTranslate(this.translate)
 		this.space.update()
+
 		this.renderer.render({ scene: this.scene, camera: this.camera })
 	}
 
