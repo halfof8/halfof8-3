@@ -136,7 +136,7 @@ export class ArtworksApp {
 		this.geometry = new RoundedPlane(this.gl, {
 			width: 1,
 			height: 1.3333,
-			radius: 0.05,
+			radius: 0.015,
 			smoothness: 8
 		})
 	}
