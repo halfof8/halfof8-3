@@ -104,7 +104,7 @@ export class ArtworksApp {
 
 		this.controls = new ControlsComposer([
 			new DragControls(options),
-			new WheelControls({ ...options, amount }),
+			new WheelControls({ ...options, multiplier: 4 }),
 			new ArrowControls({ ...options, amount, elem: window })
 		])
 	}

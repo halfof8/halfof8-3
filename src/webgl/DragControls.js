@@ -18,6 +18,7 @@ export class DragControls {
 
 	enable() {
 		if (this.isEnabled) return
+		this.isEnabled = true
 		this.elem.addEventListener('pointerdown', this._onPointerDown)
 		this.elem.addEventListener('pointermove', this._onPointerMove)
 		this.elem.addEventListener('pointerup', this._onPointerUp)
@@ -26,6 +27,7 @@ export class DragControls {
 
 	disable() {
 		if (!this.isEnabled) return
+		this.isEnabled = false
 		this.elem.removeEventListener('pointerdown', this._onPointerDown)
 		this.elem.removeEventListener('pointermove', this._onPointerMove)
 		this.elem.removeEventListener('pointerup', this._onPointerUp)

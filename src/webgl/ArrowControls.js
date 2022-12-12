@@ -18,11 +18,13 @@ export class ArrowControls {
 
 	enable() {
 		if (this.isEnabled) return
+		this.isEnabled = true
 		this.elem.addEventListener('keydown', this._onKeyDown)
 	}
 
 	disable() {
 		if (!this.isEnabled) return
+		this.isEnabled = false
 		this.elem.removeEventListener('keydown', this._onKeyDown)
 	}
 
