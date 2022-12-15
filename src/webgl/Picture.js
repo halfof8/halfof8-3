@@ -21,8 +21,8 @@ export class Picture extends Transform {
 		})
 
 		this.program = new Program(this.gl, {
-			depthTest: false,
-			depthWrite: false,
+			depthTest: true,
+			depthWrite: true,
 			fragment,
 			vertex,
 			uniforms: {
