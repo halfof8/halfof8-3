@@ -3,9 +3,10 @@ import fragment from './shaders/image.frag'
 import vertex from './shaders/image.vert'
 
 export class Picture extends Transform {
-	constructor({ gl }) {
+	constructor({ renderingContext }) {
 		super()
-		this.gl = gl
+		this.renderingContext = renderingContext
+		this.gl = this.renderingContext.renderer.gl
 	}
 
 	setup(src, geometry) {

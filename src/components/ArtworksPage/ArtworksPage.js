@@ -1,6 +1,6 @@
 import css from './ArtworksPage.module.scss'
 import { useEffect, useRef } from 'react'
-import { ArtworksApp } from '../../webgl'
+import { Artworks } from '../../webgl/Artworks'
 
 // todo memoize gl app
 // const memoizedApp = ({ canvas }) => {
@@ -19,7 +19,7 @@ const ArtworksPage = ({ images }) => {
 		if (!window) return
 
 		const canvas = ref.current
-		const app = new ArtworksApp({ canvas, images })
+		const app = new Artworks({ canvas, images })
 
 		return () => {
 			app.destroy()
