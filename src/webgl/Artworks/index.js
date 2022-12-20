@@ -1,33 +1,26 @@
-import { DragControls } from '../DragControls.js'
 import { Loop } from '../Loop.js'
 import { RoundedPlane } from '../geometry/RoundedPlane.js'
-import { WheelControls } from '../WheelControls.js'
-import { ControlsComposer } from '../ControlsComposer.js'
-import { ArrowControls } from '../ArrowControls.js'
 import { RenderingContext } from './RenderingContext.js'
 import { initGrid } from './initGrid.js'
+import { initSlider } from './initSlider.js'
 
 export class Artworks {
 	constructor({ canvas, images }) {
 		Object.assign(this, { canvas, images })
 
-		this.controlsMultiplier = 4
-		this.pointerEase = 0.05
-
 		this.renderingContext = this._setupRenderingContext()
-
 		this.geometry = this._setupGeometry()
-
 		this.grid = this._setupGrid()
-		this.controls = this._setupControls()
-
+		this.slider = this._setupSlider()
 		this.loop = new Loop(this._update)
 
 		this._enable()
+		console.log(this)
 	}
 
 	destroy() {
-		this.controls.disable()
+		this.grid.disable()
+		this.slider.disable()
 		this.loop.stop()
 	}
 
@@ -35,15 +28,12 @@ export class Artworks {
 		return new RenderingContext(this.canvas)
 	}
 
-	_setupControls() {
-		const options = { elem: this.canvas, ease: this.pointerEase }
-		const amount = { x: 50, y: 50 }
-
-		return new ControlsComposer([
-			new DragControls(options),
-			new WheelControls({ ...options, multiplier: 4 }),
-			new ArrowControls({ ...options, amount, elem: window })
-		])
+	_setupSlider() {
+		return initSlider({
+			renderingContext: this.renderingContext,
+			images: this.images,
+			geometry: this.geometry
+		})
 	}
 
 	_setupGeometry() {
@@ -64,12 +54,8 @@ export class Artworks {
 	}
 
 	_update = () => {
-		this.controls.update()
-
-		this.grid.translate
-			.copy(this.controls.currentPos)
-			.multiply(this.renderingContext.pxRatio * this.controlsMultiplier)
 		this.grid.update()
+		this.slider.update()
 
 		this.renderingContext.renderer.render({
 			scene: this.renderingContext.scene,
@@ -78,7 +64,8 @@ export class Artworks {
 	}
 
 	_enable() {
-		this.controls.enable()
+		this.grid.enable()
+		this.slider.enable()
 		this.loop.start()
 	}
 }
