@@ -6,9 +6,6 @@ export class Grid extends Transform {
 		super()
 		Object.assign(this, { renderingContext, gap, size, cellSize, pictures })
 
-		this.parallaxSpeed = 0.4
-		this.parallaxState = 0
-
 		this.translate = new Vec2(0)
 		this.dimension = this._computeDimension()
 
@@ -22,11 +19,8 @@ export class Grid extends Transform {
 	}
 
 	update() {
-		this.parallaxState = this.translate.y * this.parallaxSpeed
-
 		this.cells.forEach((cell) => {
 			cell.translate.copy(this.translate)
-			cell.translate.y += this.parallaxState * (cell.index.x / this.size.x)
 			cell.update()
 
 			this._checkBounds(cell)
