@@ -1,7 +1,7 @@
 import { Picture } from '../Picture.js'
 import { Grid } from './Grid.js'
 
-export const initGrid = ({ renderingContext, geometry, images }) => {
+export const initGrid = ({ renderingContext, geometry, images, target }) => {
 	const gap = 16
 	const rowCount = 4
 	const columnCount = Math.ceil(images.length / rowCount)
@@ -26,7 +26,8 @@ export const initGrid = ({ renderingContext, geometry, images }) => {
 		gap,
 		size: { x: columnCount, y: rowCount },
 		cellSize: pictureSize,
-		pictures
+		pictures,
+		target
 	})
 
 	grid.setParent(renderingContext.scene)

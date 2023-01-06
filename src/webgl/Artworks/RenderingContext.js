@@ -9,6 +9,10 @@ export class RenderingContext extends EventEmitter {
 		this.scene = this.createScene()
 		this.pxRatio = this.computePxRatio()
 
+		// aliases
+		this.gl = this.renderer.gl
+		this.canvas = this.gl.canvas
+
 		window.addEventListener('resize', this.resize)
 	}
 

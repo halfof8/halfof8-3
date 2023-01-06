@@ -6,6 +6,8 @@ import { ControlsComposer } from '../ControlsComposer.js'
 import { ArrowControls } from '../ArrowControls.js'
 import { RenderingContext } from './RenderingContext.js'
 import { initGrid } from './initGrid.js'
+import { Vec3 } from 'ogl'
+import { MouseControls } from '../MouseControls.js'
 
 export class Artworks {
 	constructor({ canvas, images }) {
@@ -18,6 +20,9 @@ export class Artworks {
 
 		this.geometry = this._setupGeometry()
 
+		this.pointer = new Vec3(0, 0, 5)
+		this.pointerControls = new MouseControls({ element: this.renderingContext.canvas, ease: 0.1 })
+
 		this.grid = this._setupGrid()
 		this.controls = this._setupControls()
 
@@ -27,6 +32,7 @@ export class Artworks {
 	}
 
 	destroy() {
+		this.pointerControls.disable()
 		this.controls.disable()
 		this.loop.stop()
 	}
@@ -59,12 +65,17 @@ export class Artworks {
 		return initGrid({
 			renderingContext: this.renderingContext,
 			images: this.images,
-			geometry: this.geometry
+			geometry: this.geometry,
+			target: this.pointer
 		})
 	}
 
 	_update = () => {
 		this.controls.update()
+		this.pointerControls.update()
+
+		this.pointer.x = this.pointerControls.currentPos.x
+		this.pointer.y = this.pointerControls.currentPos.y
 
 		this.grid.translate
 			.copy(this.controls.currentPos)
@@ -78,6 +89,7 @@ export class Artworks {
 	}
 
 	_enable() {
+		this.pointerControls.enable()
 		this.controls.enable()
 		this.loop.start()
 	}

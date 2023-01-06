@@ -2,9 +2,9 @@ import { Transform, Vec2 } from 'ogl'
 import { Cell } from './Celll.js'
 
 export class Grid extends Transform {
-	constructor({ renderingContext, gap, size, cellSize, pictures }) {
+	constructor({ renderingContext, gap, size, cellSize, pictures, target }) {
 		super()
-		Object.assign(this, { renderingContext, gap, size, cellSize, pictures })
+		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, target })
 
 		this.translate = new Vec2(0)
 		this.dimension = this._computeDimension()
@@ -21,6 +21,7 @@ export class Grid extends Transform {
 	update() {
 		this.cells.forEach((cell) => {
 			cell.translate.copy(this.translate)
+			cell.lookAt(this.target)
 			cell.update()
 
 			this._checkBounds(cell)
@@ -79,8 +80,8 @@ export class Grid extends Transform {
 	}
 
 	_setupBounds() {
-		const vh = window.innerHeight * this.renderingContext.pxRatio
-		const vw = window.innerWidth * this.renderingContext.pxRatio
+		const vh = (window.innerHeight + 100) * this.renderingContext.pxRatio
+		const vw = (window.innerWidth + 100) * this.renderingContext.pxRatio
 
 		return {
 			top: vh / 2,
