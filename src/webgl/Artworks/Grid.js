@@ -38,11 +38,7 @@ export class Grid extends Transform {
 	resize = () => {
 		this.bounds = this._setupBounds()
 		this._setDimension(this._computeDimension())
-		this.cells.forEach((cell) => {
-			cell.offset
-				.set(cell.index.x * (this.cellSize.x + this.gap), cell.index.y * (this.cellSize.y + this.gap))
-				.scale(this.renderingContext.pxRatio)
-		})
+		this.cells.forEach(this._placeCell)
 	}
 
 	_makeCells() {
@@ -55,14 +51,20 @@ export class Grid extends Transform {
 					dimension: this.dimension
 				})
 				cell.setParent(this)
-				cell.offset
-					.set(i * (this.cellSize.x + this.gap), j * (this.cellSize.y + this.gap))
-					.scale(this.renderingContext.pxRatio)
-
 				cells.push(cell)
+				this._placeCell(cell)
 			}
 		}
 		return cells
+	}
+
+	_placeCell = (cell) => {
+		const { x, y } = cell.index
+		const shiftY = x % 2 === 0 ? this.cellSize.y / 4 : 0
+
+		cell.offset
+			.set(x * (this.cellSize.x + this.gap), y * (this.cellSize.y + this.gap) + shiftY)
+			.scale(this.renderingContext.pxRatio)
 	}
 
 	_computeDimension() {
