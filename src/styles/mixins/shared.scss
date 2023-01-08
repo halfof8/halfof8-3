@@ -6,7 +6,7 @@
  */
 @mixin accessible-list {
 	&::before {
-		content: "\200B";
+		content: '\200B';
 	}
 }
 
@@ -15,6 +15,6 @@
 		content: '';
 		display: block;
 		width: 100%;
-		padding-bottom: math.round(1 / $ratio * 10000) / 10000  * 100%;
+		padding-bottom: math.round(1 / $ratio * 10000) / 10000 * 100%;
 	}
 }
