@@ -61,10 +61,9 @@ export class Grid extends Transform {
 
 	_placeCell = (cell) => {
 		const { x, y } = cell.index
-		const shiftY = x % 2 === 0 ? this.cellSize.y / 4 : 0
 
 		cell.offset
-			.set(x * (this.cellSize.x + this.gap), y * (this.cellSize.y + this.gap) + shiftY)
+			.set(x * (this.cellSize.x + this.gap), y * (this.cellSize.y + this.gap))
 			.scale(this.renderingContext.pxRatio)
 	}
 

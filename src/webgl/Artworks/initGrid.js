@@ -2,7 +2,7 @@ import { Picture } from '../Picture.js'
 import { Grid } from './Grid.js'
 
 export const initGrid = ({ renderingContext, geometry, images, target }) => {
-	const gap = 16
+	const gap = 8
 	const rowCount = 4
 	const columnCount = Math.ceil(images.length / rowCount)
 	const pictureAspectRatio = 1.3333
