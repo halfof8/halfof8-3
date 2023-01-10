@@ -24,8 +24,14 @@ export class MouseControls extends EventEmitter {
 		this.isEnabled = false
 	}
 
+	destroy() {
+		this.disable()
+		super.destroy()
+	}
+
 	update() {
 		this.currentPos.lerp(this.targetPos, this.ease)
+		this.emit('update', this)
 	}
 
 	_onPointerMove = (e) => {

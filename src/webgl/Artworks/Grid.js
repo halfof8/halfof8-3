@@ -1,12 +1,13 @@
-import { Transform, Vec2 } from 'ogl'
+import { Transform, Vec2, Vec3 } from 'ogl'
 import { Cell } from './Celll.js'
 
 export class Grid extends Transform {
-	constructor({ renderingContext, gap, size, cellSize, pictures, target }) {
+	constructor({ renderingContext, gap, size, cellSize, pictures, cellLookAtZ }) {
 		super()
-		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, target })
+		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, cellLookAtZ })
 
 		this.translate = new Vec2(0)
+		this.target = new Vec3(0, 0, cellLookAtZ)
 		this.dimension = this._computeDimension()
 
 		this.bounds = this._setupBounds()
@@ -42,6 +43,11 @@ export class Grid extends Transform {
 		this.bounds = this._setupBounds()
 		this._setDimension(this._computeDimension())
 		this.cells.forEach(this._placeCell)
+	}
+
+	setCellsLookAt(vec2) {
+		this.target.x = vec2.x
+		this.target.y = vec2.y
 	}
 
 	_makeCells() {
