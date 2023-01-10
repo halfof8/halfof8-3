@@ -19,10 +19,12 @@ export class Grid extends Transform {
 	}
 
 	update() {
-		this.cells.forEach((cell) => {
+		this.cells.forEach((cell, i) => {
 			cell.translate.copy(this.translate)
 			cell.lookAt(this.target)
 			cell.update()
+
+			this.pictures[i].setOpacity(this._computeOpacity(cell))
 
 			this._checkBounds(cell)
 		})
@@ -79,8 +81,8 @@ export class Grid extends Transform {
 	}
 
 	_setupBounds() {
-		const vh = (window.innerHeight + 100) * this.renderingContext.pxRatio
-		const vw = (window.innerWidth + 100) * this.renderingContext.pxRatio
+		const vh = window.innerHeight * this.renderingContext.pxRatio
+		const vw = window.innerWidth * this.renderingContext.pxRatio
 
 		return {
 			top: vh / 2,
@@ -90,23 +92,29 @@ export class Grid extends Transform {
 		}
 	}
 
+	_computeOpacity(cell) {
+		const opacity = 1 - cell.position.x ** 2 / (this.bounds.left * 2) ** 2
+		return Math.max(Math.min(opacity, 1), 0)
+	}
+
 	_checkBounds(cell) {
 		const cellWidth = this.cellSize.x * this.renderingContext.pxRatio
 		const cellHeight = this.cellSize.y * this.renderingContext.pxRatio
+		const gap = cellWidth * 0.1
 
-		if (cell.position.x + cellWidth / 2 < this.bounds.left) {
+		if (cell.position.x + cellWidth / 2 < this.bounds.left - gap) {
 			cell.shift.x += 1
 		}
 
-		if (cell.position.x - cellWidth / 2 > this.bounds.right) {
+		if (cell.position.x - cellWidth / 2 > this.bounds.right + gap) {
 			cell.shift.x -= 1
 		}
 
-		if (cell.position.y + cellHeight / 2 < this.bounds.bottom) {
+		if (cell.position.y + cellHeight / 2 < this.bounds.bottom - gap) {
 			cell.shift.y += 1
 		}
 
-		if (cell.position.y - cellHeight / 2 > this.bounds.top) {
+		if (cell.position.y - cellHeight / 2 > this.bounds.top + gap) {
 			cell.shift.y -= 1
 		}
 	}
