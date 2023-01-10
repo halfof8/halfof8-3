@@ -20,6 +20,7 @@ const ArtworksPage = ({ images }) => {
 
 		const canvas = ref.current
 		const app = new Artworks({ canvas, images })
+		window.app = app
 
 		return () => {
 			app.destroy()

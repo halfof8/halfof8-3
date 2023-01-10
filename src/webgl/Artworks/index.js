@@ -1,8 +1,8 @@
 import { DragControls } from '../DragControls.js'
 import { Loop } from '../Loop.js'
 import { RoundedPlane } from '../geometry/RoundedPlane.js'
-import { WheelControls } from '../WheelControls.js'
-import { ControlsComposer } from '../ControlsComposer.js'
+import { WheelControls } from '../controls/WheelControls.js'
+import { ControlsComposer } from '../controls/ControlsComposer.js'
 import { ArrowControls } from '../ArrowControls.js'
 import { RenderingContext } from './RenderingContext.js'
 import { initGrid } from './initGrid.js'
@@ -32,6 +32,7 @@ export class Artworks {
 		this.pointerControls.destroy()
 		this.controls.disable()
 		this.loop.stop()
+		this.grid.destroy()
 	}
 
 	_setupRenderingContext() {
@@ -51,9 +52,9 @@ export class Artworks {
 		const amount = { x: 50, y: 50 }
 
 		return new ControlsComposer([
-			new DragControls(options),
-			new WheelControls({ ...options, multiplier: 4 }),
-			new ArrowControls({ ...options, amount, elem: window })
+			// new DragControls(options),
+			new WheelControls({ ...options, multiplier: 4 })
+			// new ArrowControls({ ...options, amount, elem: window })
 		])
 	}
 
@@ -75,12 +76,12 @@ export class Artworks {
 	}
 
 	_update = () => {
-		this.controls.update()
+		// this.controls.update()
 		this.pointerControls.update()
 
-		this.grid.translate
-			.copy(this.controls.currentPos)
-			.multiply(this.renderingContext.pxRatio * this.controlsMultiplier)
+		// this.grid.translateTarget
+		// 	.copy(this.controls.targetPos)
+		// 	.multiply(this.renderingContext.pxRatio * this.controlsMultiplier)
 		this.grid.update()
 
 		this.renderingContext.renderer.render({

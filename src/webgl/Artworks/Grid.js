@@ -2,10 +2,12 @@ import { Transform, Vec2, Vec3 } from 'ogl'
 import { Cell } from './Celll.js'
 
 export class Grid extends Transform {
-	constructor({ renderingContext, gap, size, cellSize, pictures, cellLookAtZ }) {
+	constructor({ renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls }) {
 		super()
-		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, cellLookAtZ })
+		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls })
 
+		this.translateTarget = new Vec2(0)
+		this.lastTranslate = new Vec2(0)
 		this.translate = new Vec2(0)
 		this.target = new Vec3(0, 0, cellLookAtZ)
 		this.dimension = this._computeDimension()
@@ -17,9 +19,18 @@ export class Grid extends Transform {
 		this.cells.forEach((cell, i) => {
 			this.pictures[i].setParent(cell)
 		})
+
+		this.controls.on('change', this._onControlsChange)
 	}
 
 	update() {
+		this.lastTranslate.copy(this.translate)
+		this.translate.lerp(this.translateTarget, 0.05)
+
+		if (this.translate.distance(this.translateTarget) < 0.25) {
+			this.slideToCell(this.getClosestCell(0, 0))
+		}
+
 		this.cells.forEach((cell, i) => {
 			cell.translate.copy(this.translate)
 			cell.lookAt(this.target)
@@ -39,10 +50,39 @@ export class Grid extends Transform {
 		this.cellSize = { x, y }
 	}
 
+	getCell(x, y) {
+		return this.cells.find((cell) => cell.index.x === x && cell.index.y === y)
+	}
+
+	getClosestCell(x, y) {
+		const closest = this.cells.reduce(
+			(acc, cell) => {
+				const distance = new Vec2(x, y).distance(cell.position)
+				if (distance < acc.distance) {
+					acc.distance = distance
+					acc.cell = cell
+				}
+				return acc
+			},
+			{ distance: Infinity, cell: null }
+		)
+
+		return closest.cell
+	}
+
+	slideToCell(cell) {
+		this.translateTarget.x = this.translate.x - cell.position.x
+		this.translateTarget.y = this.translate.y - cell.position.y
+	}
+
 	resize = () => {
 		this.bounds = this._setupBounds()
 		this._setDimension(this._computeDimension())
 		this.cells.forEach(this._placeCell)
+	}
+
+	destroy() {
+		this.controls.destroy()
 	}
 
 	setCellsLookAt(vec2) {
@@ -123,5 +163,11 @@ export class Grid extends Transform {
 		if (cell.position.y - cellHeight / 2 > this.bounds.top + gap) {
 			cell.shift.y -= 1
 		}
+	}
+
+	_onControlsChange = (e) => {
+		const { x, y } = e
+		this.translateTarget.x -= x * this.renderingContext.pxRatio // or maybe invert in controls
+		this.translateTarget.y += y * this.renderingContext.pxRatio
 	}
 }
