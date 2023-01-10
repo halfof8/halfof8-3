@@ -1,11 +1,12 @@
 import { DragControls } from '../DragControls.js'
 import { Loop } from '../Loop.js'
 import { RoundedPlane } from '../geometry/RoundedPlane.js'
-import { WheelControls } from '../WheelControls.js'
-import { ControlsComposer } from '../ControlsComposer.js'
+import { WheelControls } from '../controls/WheelControls.js'
+import { ControlsComposer } from '../controls/ControlsComposer.js'
 import { ArrowControls } from '../ArrowControls.js'
 import { RenderingContext } from './RenderingContext.js'
 import { initGrid } from './initGrid.js'
+import { MouseControls } from '../MouseControls.js'
 
 export class Artworks {
 	constructor({ canvas, images }) {
@@ -20,6 +21,7 @@ export class Artworks {
 
 		this.grid = this._setupGrid()
 		this.controls = this._setupControls()
+		this.pointerControls = this._setUpPointerControls()
 
 		this.loop = new Loop(this._update)
 
@@ -27,12 +29,22 @@ export class Artworks {
 	}
 
 	destroy() {
+		this.pointerControls.destroy()
 		this.controls.disable()
 		this.loop.stop()
+		this.grid.destroy()
 	}
 
 	_setupRenderingContext() {
 		return new RenderingContext(this.canvas)
+	}
+
+	_setUpPointerControls() {
+		const controls = new MouseControls({ element: this.renderingContext.canvas, ease: 0.1 })
+
+		controls.on('update', (e) => this.grid.setCellsLookAt(e.currentPos))
+
+		return controls
 	}
 
 	_setupControls() {
@@ -40,9 +52,9 @@ export class Artworks {
 		const amount = { x: 50, y: 50 }
 
 		return new ControlsComposer([
-			new DragControls(options),
-			new WheelControls({ ...options, multiplier: 4 }),
-			new ArrowControls({ ...options, amount, elem: window })
+			// new DragControls(options),
+			new WheelControls({ ...options, multiplier: 4 })
+			// new ArrowControls({ ...options, amount, elem: window })
 		])
 	}
 
@@ -64,11 +76,12 @@ export class Artworks {
 	}
 
 	_update = () => {
-		this.controls.update()
+		// this.controls.update()
+		this.pointerControls.update()
 
-		this.grid.translate
-			.copy(this.controls.currentPos)
-			.multiply(this.renderingContext.pxRatio * this.controlsMultiplier)
+		// this.grid.translateTarget
+		// 	.copy(this.controls.targetPos)
+		// 	.multiply(this.renderingContext.pxRatio * this.controlsMultiplier)
 		this.grid.update()
 
 		this.renderingContext.renderer.render({
@@ -78,6 +91,7 @@ export class Artworks {
 	}
 
 	_enable() {
+		this.pointerControls.enable()
 		this.controls.enable()
 		this.loop.start()
 	}

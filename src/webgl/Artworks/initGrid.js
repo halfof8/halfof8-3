@@ -1,11 +1,15 @@
 import { Picture } from '../Picture.js'
 import { Grid } from './Grid.js'
+import { WheelControls } from '../controls/WheelControls.js'
+import { DragControls } from '../controls/DragControls.js'
+import { ControlsComposer } from '../controls/ControlsComposer.js'
 
 export const initGrid = ({ renderingContext, geometry, images }) => {
-	const gap = 16
+	const gap = 8
 	const rowCount = 4
 	const columnCount = Math.ceil(images.length / rowCount)
 	const pictureAspectRatio = 1.3333
+	const cellLookAtZ = 5
 
 	const pictureSize = getPictureSize()
 
@@ -21,12 +25,20 @@ export const initGrid = ({ renderingContext, geometry, images }) => {
 		pictures.push(picture)
 	}
 
+	const controls = new ControlsComposer([
+		new WheelControls({ elem: renderingContext.canvas, multiplier: 0.5 }),
+		new DragControls({ elem: renderingContext.canvas })
+	])
+	controls.enable()
+
 	const grid = new Grid({
 		renderingContext,
 		gap,
 		size: { x: columnCount, y: rowCount },
 		cellSize: pictureSize,
-		pictures
+		pictures,
+		cellLookAtZ,
+		controls
 	})
 
 	grid.setParent(renderingContext.scene)

@@ -15,4 +15,8 @@ export default class EventEmitter {
 	off(type, fn) {
 		if (this.events[type]) this.events[type] = this.events[type].filter((func) => func !== fn)
 	}
+
+	destroy() {
+		this.events = {}
+	}
 }

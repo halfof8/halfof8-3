@@ -9,6 +9,10 @@ export class RenderingContext extends EventEmitter {
 		this.scene = this.createScene()
 		this.pxRatio = this.computePxRatio()
 
+		// aliases
+		this.gl = this.renderer.gl
+		this.canvas = this.gl.canvas
+
 		window.addEventListener('resize', this.resize)
 	}
 
@@ -16,9 +20,11 @@ export class RenderingContext extends EventEmitter {
 		const renderer = new Renderer({
 			canvas,
 			dpr: window.devicePixelRatio,
-			antialias: true
+			antialias: true,
+			alpha: true
 		})
 		renderer.setSize(window.innerWidth, window.innerHeight)
+		renderer.gl.clearColor(0, 0, 0, 0)
 
 		return renderer
 	}
@@ -29,7 +35,7 @@ export class RenderingContext extends EventEmitter {
 			fov: 45,
 			aspect: gl.canvas.width / gl.canvas.height
 		})
-		camera.position.z = 5
+		camera.position.z = 20
 		camera.lookAt([0, 0, 0])
 
 		return camera

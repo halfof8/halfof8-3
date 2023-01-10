@@ -35,11 +35,11 @@
 	pointer-events: none;
 
 	&:first-child {
-		clip-path: inset(0 100% 0 0)
+		clip-path: inset(0 100% 0 0);
 	}
 
 	&:last-child {
-		opacity: .6;
+		opacity: 0.6;
 	}
 }
 

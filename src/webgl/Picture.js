@@ -16,6 +16,10 @@ export class Picture extends Transform {
 		return this
 	}
 
+	setOpacity(opacity) {
+		this.program.uniforms.uAlpha.value = opacity
+	}
+
 	_setupShader(src) {
 		const texture = new Texture(this.gl, {
 			generateMipmaps: false
@@ -27,7 +31,8 @@ export class Picture extends Transform {
 			fragment,
 			vertex,
 			uniforms: {
-				tMap: { value: texture }
+				tMap: { value: texture },
+				uAlpha: { value: 1 }
 			},
 			transparent: true
 		})
