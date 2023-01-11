@@ -2,9 +2,9 @@ import { Transform, Vec2, Vec3 } from 'ogl'
 import { Cell } from './Celll.js'
 
 export class Grid extends Transform {
-	constructor({ renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls }) {
+	constructor({ renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls, minOpacity = 0.5 }) {
 		super()
-		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls })
+		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls, minOpacity })
 
 		this.translateTarget = new Vec2(0)
 		this.lastTranslate = new Vec2(0)
@@ -139,8 +139,8 @@ export class Grid extends Transform {
 	}
 
 	_computeOpacity(cell) {
-		const opacity = 1 - cell.position.x ** 2 / (this.bounds.left * 2) ** 2
-		return Math.max(Math.min(opacity, 1), 0)
+		const opacity = 1 - cell.position.x ** 2 / this.bounds.left ** 2
+		return Math.max(Math.min(opacity, 1), this.minOpacity)
 	}
 
 	_checkBounds(cell) {
