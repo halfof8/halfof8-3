@@ -150,7 +150,7 @@ export class Grid extends Transform {
 
 	_computeOpacity(cell) {
 		const opacity = 1 - cell.position.x ** 2 / this.bounds.left ** 2
-		return Math.max(Math.min(opacity, 1), this.minOpacity)
+		return Math.max(Math.min(opacity, 1), this.PARAMS.minOpacity)
 	}
 
 	_checkBounds(cell) {

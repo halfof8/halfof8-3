@@ -20,13 +20,18 @@ const ArtworksPage = ({ images }) => {
 		if (!window) return
 
 		const PARAMS = {
-			snapping: true
+			snapping: true,
+			minOpacity: 0.2
 		}
 
 		const pane = new Pane()
 		console.log(pane)
 
 		pane.addInput(PARAMS, 'snapping')
+		pane.addInput(PARAMS, 'minOpacity', {
+			min: 0,
+			max: 1
+		})
 
 		const canvas = ref.current
 		const app = new Artworks({ canvas, images, PARAMS })
