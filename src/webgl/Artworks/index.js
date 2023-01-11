@@ -9,8 +9,8 @@ import { initGrid } from './initGrid.js'
 import { MouseControls } from '../MouseControls.js'
 
 export class Artworks {
-	constructor({ canvas, images }) {
-		Object.assign(this, { canvas, images })
+	constructor({ canvas, images, PARAMS }) {
+		Object.assign(this, { canvas, images, PARAMS })
 
 		this.controlsMultiplier = 4
 		this.pointerEase = 0.05
@@ -71,7 +71,8 @@ export class Artworks {
 		return initGrid({
 			renderingContext: this.renderingContext,
 			images: this.images,
-			geometry: this.geometry
+			geometry: this.geometry,
+			PARAMS: this.PARAMS
 		})
 	}
 

@@ -1,6 +1,7 @@
 import css from './ArtworksPage.module.scss'
 import { useEffect, useRef } from 'react'
 import { Artworks } from '../../webgl/Artworks'
+import { Pane } from 'tweakpane'
 
 // todo memoize gl app
 // const memoizedApp = ({ canvas }) => {
@@ -18,8 +19,17 @@ const ArtworksPage = ({ images }) => {
 	useEffect(() => {
 		if (!window) return
 
+		const PARAMS = {
+			snapping: true
+		}
+
+		const pane = new Pane()
+		console.log(pane)
+
+		pane.addInput(PARAMS, 'snapping')
+
 		const canvas = ref.current
-		const app = new Artworks({ canvas, images })
+		const app = new Artworks({ canvas, images, PARAMS })
 		window.app = app
 
 		return () => {

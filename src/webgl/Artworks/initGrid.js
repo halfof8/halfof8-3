@@ -4,7 +4,7 @@ import { WheelControls } from '../controls/WheelControls.js'
 import { DragControls } from '../controls/DragControls.js'
 import { ControlsComposer } from '../controls/ControlsComposer.js'
 
-export const initGrid = ({ renderingContext, geometry, images }) => {
+export const initGrid = ({ renderingContext, geometry, images, PARAMS }) => {
 	const gap = 8
 	const rowCount = 4
 	const columnCount = Math.ceil(images.length / rowCount)
@@ -40,7 +40,8 @@ export const initGrid = ({ renderingContext, geometry, images }) => {
 		pictures,
 		cellLookAtZ,
 		controls,
-		minOpacity
+		minOpacity,
+		PARAMS
 	})
 
 	grid.setParent(renderingContext.scene)

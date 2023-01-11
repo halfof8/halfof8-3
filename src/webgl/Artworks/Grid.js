@@ -2,9 +2,19 @@ import { Transform, Vec2, Vec3 } from 'ogl'
 import { Cell } from './Celll.js'
 
 export class Grid extends Transform {
-	constructor({ renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls, minOpacity = 0.5 }) {
+	constructor({ PARAMS, renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls, minOpacity = 0.5 }) {
 		super()
-		Object.assign(this, { renderingContext, gap, size, cellSize, pictures, cellLookAtZ, controls, minOpacity })
+		Object.assign(this, {
+			PARAMS,
+			renderingContext,
+			gap,
+			size,
+			cellSize,
+			pictures,
+			cellLookAtZ,
+			controls,
+			minOpacity
+		})
 
 		this.translateTarget = new Vec2(0)
 		this.lastTranslate = new Vec2(0)
@@ -27,7 +37,7 @@ export class Grid extends Transform {
 		this.lastTranslate.copy(this.translate)
 		this.translate.lerp(this.translateTarget, 0.05)
 
-		if (this.translate.distance(this.translateTarget) < 0.25) {
+		if (this.PARAMS.snapping && this.translate.distance(this.translateTarget) < 0.25) {
 			this.slideToCell(this.getClosestCell(0, 0))
 		}
 
