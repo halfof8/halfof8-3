@@ -6,7 +6,7 @@ export class Picture extends Transform {
 	constructor({ renderingContext }) {
 		super()
 		this.renderingContext = renderingContext
-		this.gl = this.renderingContext.renderer.gl
+		this.gl = this.renderingContext.gl
 	}
 
 	setup(src, geometry) {
@@ -32,7 +32,8 @@ export class Picture extends Transform {
 			vertex,
 			uniforms: {
 				tMap: { value: texture },
-				uAlpha: { value: 1 }
+				uAlpha: { value: 1 },
+				uFadeColor: { value: new Float32Array([0.0, 0.0, 0.0]) } // todo parameter
 			},
 			transparent: true
 		})

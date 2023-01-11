@@ -10,7 +10,7 @@ export const initGrid = ({ renderingContext, geometry, images }) => {
 	const columnCount = Math.ceil(images.length / rowCount)
 	const pictureAspectRatio = 1.3333
 	const cellLookAtZ = 5
-	const minOpacity = 0.5
+	const minOpacity = 0.2
 
 	const pictureSize = getPictureSize()
 
