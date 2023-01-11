@@ -5,10 +5,12 @@
 	height: 100%;
 }
 
+$dot-color: #3a3a3a;
+
 .canvas {
 	touch-action: none;
 	background-color:#000;
-	background-image: radial-gradient(gray 8%, transparent 5%), radial-gradient(gray 8%, transparent 3%);
+	background-image: radial-gradient($dot-color 8%, transparent 5%), radial-gradient($dot-color 8%, transparent 3%);
 	background-size:8px 8px;
 	background-position: 0 0, 32px 32px;
 }
